@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LaptopMatchVN | EasyLap – Chọn đúng, mua chuẩn</title>
+    <meta name="description" content="LaptopMatchVN – EasyLap giúp người dùng không rành laptop vẫn chọn được máy phù hợp theo đúng nhu cầu, ngành học, ngân sách và thói quen sử dụng.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container nav-container">
+            <div class="logo" onclick="app.navigate('home')">LaptopMatch<span>VN</span></div>
+            <ul class="nav-links">
+                <li><a href="#" onclick="app.navigate('home')">Trang chủ</a></li>
+                <li><a href="#" onclick="app.navigate('knowledge')">Kiến thức 5 phút</a></li>
+                <li><a href="#" onclick="app.navigate('compare')">So sánh</a></li>
+            </ul>
+            <button class="btn btn-outline" onclick="app.navigate('quiz')">Làm Quiz</button>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main id="app-content">
+        <!-- Views will be injected here by app.js -->
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 LaptopMatchVN &nbsp;|&nbsp; EasyLap – Chọn đúng, mua chuẩn.</p>
+        </div>
+    </footer>
+
+    <!-- Templates for Views -->
+    
+    <!-- Home View Template -->
+    <template id="view-home">
+        <section class="hero">
+            <div class="container hero-container">
+                <div class="hero-content">
+                    <h1>EasyLap – Chọn đúng, mua chuẩn</h1>
+                    <p class="hero-desc">Không rành laptop vẫn chọn được máy phù hợp. Trả lời vài câu hỏi, LaptopMatchVN sẽ gợi ý cấu hình và top laptop phù hợp với nhu cầu, ngành học, ngân sách và thói quen của bạn.</p>
+                    <button class="btn btn-primary btn-large cta-btn" onclick="app.navigate('quiz')">Bắt đầu chọn laptop</button>
+                </div>
+                <div class="hero-image">
+                    <!-- Decorative shapes instead of an actual image to look modern -->
+                    <div class="blob shape1"></div>
+                    <div class="blob shape2"></div>
+                    <div class="laptop-mockup">
+                        <div class="screen-content">EasyLap ✓</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="problems bg-light">
+            <div class="container">
+                <h2 class="section-title">Bạn đang gặp khó khăn khi chọn laptop?</h2>
+                <div class="grid-3">
+                    <div class="card">
+                        <div class="icon-box">🤔</div>
+                        <h3>Mù mờ thông số</h3>
+                        <p>Không hiểu CPU, RAM, SSD, hay Card đồ họa (GPU) là gì và khác nhau thế nào.</p>
+                    </div>
+                    <div class="card">
+                        <div class="icon-box">😵</div>
+                        <h3>Quá nhiều lựa chọn</h3>
+                        <p>Bị rối vì quá nhiều mẫu mã laptop và mức giá trên thị trường hiện nay.</p>
+                    </div>
+                    <div class="card">
+                        <div class="icon-box">💸</div>
+                        <h3>Sợ mua sai</h3>
+                        <p>Dễ mua máy quá dư cấu hình gây lãng phí, hoặc máy quá yếu so với nhu cầu thực tế.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="benefits">
+            <div class="container">
+                <h2 class="section-title">LaptopMatchVN giúp gì cho bạn?</h2>
+                <div class="grid-2 benefit-list">
+                    <div class="benefit-item">
+                        <span class="check-icon">✓</span>
+                        <div>
+                            <h4>Tiết kiệm thời gian</h4>
+                            <p>Không cần tự tìm hiểu hàng chục bài đánh giá.</p>
+                        </div>
+                    </div>
+                    <div class="benefit-item">
+                        <span class="check-icon">✓</span>
+                        <div>
+                            <h4>Chọn đúng nhu cầu</h4>
+                            <p>Thuật toán gợi ý chính xác máy phục vụ tốt việc của bạn.</p>
+                        </div>
+                    </div>
+                    <div class="benefit-item">
+                        <span class="check-icon">✓</span>
+                        <div>
+                            <h4>Tối ưu chi phí</h4>
+                            <p>Tránh việc vung tay quá trán cho những tính năng không dùng tới.</p>
+                        </div>
+                    </div>
+                    <div class="benefit-item">
+                        <span class="check-icon">✓</span>
+                        <div>
+                            <h4>Ngôn ngữ đơn giản</h4>
+                            <p>Hiểu thông số laptop qua các ví dụ đời thường, dễ hiểu.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </template>
+
+    <!-- Quiz View Template -->
+    <template id="view-quiz">
+        <div class="container quiz-container">
+            <div class="quiz-header">
+                <div class="progress-wrapper">
+                    <div class="progress-bar" id="quiz-progress"></div>
+                </div>
+                <div class="quiz-status" id="quiz-status">Câu 1 / ...</div>
+            </div>
+            
+            <div class="quiz-box card glass" id="quiz-box">
+                <!-- Question will be injected here -->
+            </div>
+        </div>
+    </template>
+
+    <!-- Results View Template -->
+    <template id="view-results">
+        <div class="container results-container">
+            <div class="results-header" id="results-header">
+                <!-- Injected by renderResults() -->
+            </div>
+            
+            <div class="laptops-grid" id="results-grid">
+                <!-- Laptop cards will be injected here -->
+            </div>
+            
+            <div class="actions-center">
+                <button class="btn btn-outline" onclick="app.navigate('quiz')">Làm lại Quiz</button>
+                <button class="btn btn-primary" onclick="app.navigate('compare')" style="margin-left:12px">So sánh các máy đã chọn</button>
+            </div>
+        </div>
+    </template>
+
+    <!-- Compare View Template -->
+    <template id="view-compare">
+        <div class="container compare-container">
+            <h2>So sánh Laptop</h2>
+            <p>Chọn các mẫu laptop từ kết quả để xem so sánh chi tiết.</p>
+            <div class="compare-table-wrapper card" id="compare-wrapper">
+                <!-- Table will be injected here -->
+            </div>
+        </div>
+    </template>
+
+    <!-- Knowledge Base View Template -->
+    <template id="view-knowledge">
+        <div class="container knowledge-container">
+            <div class="knowledge-header">
+                <h2>Hiểu Laptop Trong 5 Phút</h2>
+                <p>Giải mã các thuật ngữ kỹ thuật khô khan bằng ngôn ngữ bình dân nhất.</p>
+            </div>
+            
+            <div class="knowledge-grid">
+                <div class="card glass">
+                    <h3>🧠 CPU (Bộ vi xử lý) là gì?</h3>
+                    <p>Giống như <strong>bộ não</strong> của con người. CPU càng mạnh (Core i5, i7 hoặc Ryzen 5, 7) thì máy xử lý công việc, tính toán càng nhanh. Học tập cơ bản chỉ cần i3/Ryzen 3, làm nặng cần i5/Ryzen 5 trở lên.</p>
+                </div>
+                <div class="card glass">
+                    <h3>🗄️ RAM (Bộ nhớ trong) là gì?</h3>
+                    <p>Giống như <strong>chiếc bàn làm việc</strong>. Bàn càng rộng (RAM lớn) thì bạn càng bày được nhiều giấy tờ (mở nhiều phần mềm, nhiều tab Chrome) cùng lúc mà không bị rối (máy không bị đơ).</p>
+                    <p class="highlight">💡 <strong>Khi nào cần 16GB?</strong> Khi bạn mở trên 10 tab Chrome, hoặc dùng các app nặng như Photoshop, dựng video, lập trình.</p>
+                </div>
+                <div class="card glass">
+                    <h3>📦 SSD (Ổ cứng) là gì?</h3>
+                    <p>Giống như <strong>cái tủ tài liệu</strong> để lưu trữ dữ liệu (ảnh, video, game). SSD giúp mở máy và mở app nhanh trong "chớp mắt". Khuyên dùng 512GB để dùng thoải mái vài năm.</p>
+                </div>
+                <div class="card glass">
+                    <h3>🎨 GPU (Card đồ họa) là gì?</h3>
+                    <p>Giống như <strong>họa sĩ</strong> chuyên vẽ vời. Mọi máy đều có họa sĩ "thường" (Card Onboard) đủ xem phim, làm Word/Excel. Nếu bạn chơi game nặng hoặc thiết kế 3D, bạn cần thuê một họa sĩ "chuyên nghiệp" (Card rời - dGPU).</p>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

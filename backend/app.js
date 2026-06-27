@@ -23,6 +23,10 @@ const allowedOrigins = `${env.CLIENT_URL},${env.CORS_ORIGINS}`
   .map((origin) => origin.trim())
   .filter(Boolean);
 
+const allowedVercelHosts = new Set([
+  'easylap.vercel.app'
+]);
+
 const isAllowedOrigin = (origin) => {
   if (!origin) return true;
   if (allowedOrigins.includes(origin)) return true;
@@ -30,7 +34,11 @@ const isAllowedOrigin = (origin) => {
   try {
     const { protocol, hostname } = new URL(origin);
     const isLocalhost = protocol === 'http:' && ['localhost', '127.0.0.1'].includes(hostname);
-    const isEasyLapVercel = protocol === 'https:' && /^easy-lap-[a-z0-9-]+\.vercel\.app$/i.test(hostname);
+    const normalizedHostname = hostname.toLowerCase();
+    const isEasyLapVercel = protocol === 'https:' && (
+      allowedVercelHosts.has(normalizedHostname) ||
+      /^easy-lap-[a-z0-9-]+\.vercel\.app$/i.test(normalizedHostname)
+    );
 
     return isLocalhost || isEasyLapVercel;
   } catch (error) {

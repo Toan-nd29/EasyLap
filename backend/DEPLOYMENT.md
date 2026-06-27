@@ -27,8 +27,8 @@ Environment variables:
 
 ```txt
 NODE_ENV=production
-CLIENT_URL=https://easy-lap-4ttd.vercel.app
-CORS_ORIGINS=https://easy-lap-4ttd.vercel.app
+CLIENT_URL=https://easylap.vercel.app
+CORS_ORIGINS=https://easylap.vercel.app,https://easy-lap-4ttd.vercel.app
 SUPABASE_URL=...
 SUPABASE_ANON_KEY=...
 SUPABASE_SERVICE_ROLE_KEY=...
@@ -37,7 +37,7 @@ SUPABASE_SERVICE_ROLE_KEY=...
 After deployment, set the frontend variable:
 
 ```txt
-VITE_API_URL=https://your-backend-domain.vercel.app/api
+VITE_API_URL=https://easy-lap-o2sa.vercel.app/api
 ```
 
 Then redeploy the frontend.

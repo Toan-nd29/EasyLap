@@ -1,16 +1,17 @@
 {
-  "rewrites": [
+  "version": 2,
+  "routes": [
     {
-      "source": "/",
-      "destination": "/api/index?path=health"
+      "src": "/api/(.*)",
+      "dest": "/api/index.js?path=$1"
     },
     {
-      "source": "/api",
-      "destination": "/api/index?path=health"
+      "src": "/api",
+      "dest": "/api/index.js?path=health"
     },
     {
-      "source": "/api/:path*",
-      "destination": "/api/index?path=:path*"
+      "src": "/",
+      "dest": "/api/index.js?path=health"
     }
   ]
 }

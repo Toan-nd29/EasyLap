@@ -22,7 +22,7 @@ const ProfilePage = () => {
     }
     setIsSubmitting(true);
     try {
-      const res = await userApi.updateProfile({ fullName });
+      const res = await userApi.updateProfile({ full_name: fullName });
       if (res.success) {
         setSuccess('Cập nhật thành công!');
         fetchCurrentUser();

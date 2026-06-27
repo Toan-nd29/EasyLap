@@ -18,22 +18,42 @@ const { apiLimiter } = require('./middlewares/rateLimitMiddleware');
 const app = express();
 app.set('trust proxy', 1);
 
-const allowedOrigins = env.CLIENT_URL
+const allowedOrigins = `${env.CLIENT_URL},${env.CORS_ORIGINS}`
   .split(',')
   .map((origin) => origin.trim())
   .filter(Boolean);
 
+const isAllowedOrigin = (origin) => {
+  if (!origin) return true;
+  if (allowedOrigins.includes(origin)) return true;
+
+  try {
+    const { protocol, hostname } = new URL(origin);
+    const isLocalhost = protocol === 'http:' && ['localhost', '127.0.0.1'].includes(hostname);
+    const isEasyLapVercel = protocol === 'https:' && /^easy-lap-[a-z0-9-]+\.vercel\.app$/i.test(hostname);
+
+    return isLocalhost || isEasyLapVercel;
+  } catch (error) {
+    return false;
+  }
+};
+
 app.use(helmet());
-app.use(cors({
+const corsOptions = {
   origin(origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
+    if (isAllowedOrigin(origin)) {
       return callback(null, true);
     }
 
     return callback(new Error(`Origin ${origin} is not allowed by CORS`));
   },
-  credentials: true
-}));
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
+
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

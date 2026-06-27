@@ -27,7 +27,8 @@ Environment variables:
 
 ```txt
 NODE_ENV=production
-CLIENT_URL=https://your-frontend-domain.vercel.app
+CLIENT_URL=https://easy-lap-4ttd.vercel.app
+CORS_ORIGINS=https://easy-lap-4ttd.vercel.app
 SUPABASE_URL=...
 SUPABASE_ANON_KEY=...
 SUPABASE_SERVICE_ROLE_KEY=...

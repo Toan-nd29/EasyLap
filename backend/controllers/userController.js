@@ -40,6 +40,16 @@ class UserController {
     }
   }
 
+  async getFavoriteIds(req, res, next) {
+    try {
+      const userId = req.user.id;
+      const favorites = await userService.getFavoriteIds(userId);
+      return sendSuccess(res, { favoriteIds: favorites.map(f => f.laptop_id) }, 'Thành công');
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async addFavorite(req, res, next) {
     try {
       const userId = req.user.id;

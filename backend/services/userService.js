@@ -1,4 +1,4 @@
-const { supabase, supabaseAdmin } = require('../config/supabaseClient');
+const { supabaseAdmin } = require('../config/supabaseClient');
 
 class UserService {
   async updateProfile(userId, profileData) {
@@ -13,7 +13,7 @@ class UserService {
   }
 
   async getHistory(userId) {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('quiz_attempts')
       .select(`
         *,
@@ -30,12 +30,22 @@ class UserService {
   }
 
   async getFavorites(userId) {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('favorite_laptops')
       .select(`
         id,
+        laptop_id,
         created_at,
-        laptops (*)
+        laptops (
+          id,
+          name,
+          brand,
+          price,
+          cpu,
+          ram,
+          ssd,
+          image_url
+        )
       `)
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
@@ -44,8 +54,18 @@ class UserService {
     return data;
   }
 
+  async getFavoriteIds(userId) {
+    const { data, error } = await supabaseAdmin
+      .from('favorite_laptops')
+      .select('laptop_id')
+      .eq('user_id', userId);
+
+    if (error) throw error;
+    return data;
+  }
+
   async addFavorite(userId, laptopId) {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('favorite_laptops')
       .insert([{ user_id: userId, laptop_id: laptopId }])
       .select()
@@ -55,7 +75,7 @@ class UserService {
   }
 
   async removeFavorite(userId, laptopId) {
-    const { error } = await supabase
+    const { error } = await supabaseAdmin
       .from('favorite_laptops')
       .delete()
       .eq('user_id', userId)

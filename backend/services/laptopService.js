@@ -1,4 +1,22 @@
-const { supabaseAdmin, supabase } = require('../config/supabaseClient');
+const { supabaseAdmin } = require('../config/supabaseClient');
+
+const LAPTOP_LIST_COLUMNS = [
+  'id',
+  'name',
+  'brand',
+  'price',
+  'cpu',
+  'ram',
+  'ssd',
+  'gpu',
+  'gpu_type',
+  'screen',
+  'weight',
+  'warranty',
+  'upgradeable',
+  'image_url',
+  'created_at'
+].join(', ');
 
 class LaptopService {
   async getAll(query) {
@@ -18,7 +36,10 @@ class LaptopService {
       limit = 20
     } = query;
 
-    let queryBuilder = supabase.from('laptops').select('*', { count: 'exact' });
+    const pageNumber = Math.max(parseInt(page, 10) || 1, 1);
+    const limitNumber = Math.min(Math.max(parseInt(limit, 10) || 20, 1), 20);
+
+    let queryBuilder = supabaseAdmin.from('laptops').select(LAPTOP_LIST_COLUMNS, { count: 'exact' });
 
     if (search) {
       queryBuilder = queryBuilder.ilike('name', `%${search}%`);
@@ -77,8 +98,8 @@ class LaptopService {
     }
 
     // Pagination
-    const from = (page - 1) * limit;
-    const to = from + parseInt(limit) - 1;
+    const from = (pageNumber - 1) * limitNumber;
+    const to = from + limitNumber - 1;
     queryBuilder = queryBuilder.range(from, to);
 
     const { data, count, error } = await queryBuilder;
@@ -87,16 +108,16 @@ class LaptopService {
     return {
       data,
       pagination: {
-        page: parseInt(page),
-        limit: parseInt(limit),
-        total: count,
-        totalPages: Math.ceil(count / limit)
+        page: pageNumber,
+        limit: limitNumber,
+        total: count || 0,
+        totalPages: Math.max(Math.ceil((count || 0) / limitNumber), 1)
       }
     };
   }
 
   async getById(id) {
-    const { data, error } = await supabase.from('laptops').select('*').eq('id', id).single();
+    const { data, error } = await supabaseAdmin.from('laptops').select('*').eq('id', id).single();
     if (error) throw error;
     return data;
   }

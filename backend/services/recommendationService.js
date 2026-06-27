@@ -1,4 +1,4 @@
-const { supabaseAdmin, supabase } = require('../config/supabaseClient');
+const { supabaseAdmin } = require('../config/supabaseClient');
 const { calculateScore } = require('../utils/scoreCalculator');
 const { generateMatchReasons, generateTradeOffs } = require('../utils/generateReasons');
 const { generateRecommendedConfig, generateSummary } = require('../utils/generateConfig');
@@ -9,7 +9,7 @@ class RecommendationService {
     const { userGroup, budget, priorities } = commonAnswers;
 
     // 1. Lấy tất cả laptop active
-    const { data: laptops, error: laptopError } = await supabase
+    const { data: laptops, error: laptopError } = await supabaseAdmin
       .from('laptops')
       .select('*');
 

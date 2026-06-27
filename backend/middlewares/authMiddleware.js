@@ -1,4 +1,4 @@
-const { supabase } = require('../config/supabaseClient');
+const { supabase, supabaseAdmin } = require('../config/supabaseClient');
 const { sendError } = require('../utils/response');
 
 const requireAuth = async (req, res, next) => {
@@ -18,7 +18,7 @@ const requireAuth = async (req, res, next) => {
     }
 
     // Get user profile to check role
-    const { data: profile, error: profileError } = await supabase
+    const { data: profile, error: profileError } = await supabaseAdmin
       .from('profiles')
       .select('id, full_name, email, role')
       .eq('id', user.id)
@@ -30,6 +30,7 @@ const requireAuth = async (req, res, next) => {
 
     // Attach user to req
     req.user = profile;
+    req.accessToken = token;
     next();
   } catch (error) {
     console.error('Auth Error:', error);

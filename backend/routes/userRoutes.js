@@ -11,6 +11,7 @@ router.get('/me', userController.getMe);
 router.put('/me', validate(updateProfileSchema), userController.updateMe);
 router.get('/me/history', userController.getHistory);
 
+router.get('/me/favorites/ids', userController.getFavoriteIds);
 router.get('/me/favorites', userController.getFavorites);
 router.post('/me/favorites', validate(favoriteSchema), userController.addFavorite);
 router.delete('/me/favorites/:laptopId', userController.removeFavorite);

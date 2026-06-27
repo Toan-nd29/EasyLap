@@ -1,8 +1,8 @@
-const { supabaseAdmin, supabase } = require('../config/supabaseClient');
+const { supabaseAdmin } = require('../config/supabaseClient');
 
 class QuizService {
   async getQuestionsByGroup(group) {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('quiz_questions')
       .select('*')
       .eq('question_group', group)

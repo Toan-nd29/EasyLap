@@ -79,7 +79,7 @@ const LaptopListPage = () => {
 
       const [laptopRes, favRes] = await Promise.allSettled([
         laptopApi.getAll(queryParams),
-        userApi.getFavorites()
+        userApi.getFavoriteIds()
       ]);
 
       if (laptopRes.status === 'fulfilled' && laptopRes.value.success) {
@@ -92,7 +92,7 @@ const LaptopListPage = () => {
       }
 
       if (favRes.status === 'fulfilled' && favRes.value.success) {
-        setFavorites((favRes.value.favorites || []).map(f => f.laptop_id));
+        setFavorites(favRes.value.favoriteIds || []);
       }
     } catch (err) {
       setError(err.message || 'Lỗi kết nối máy chủ');

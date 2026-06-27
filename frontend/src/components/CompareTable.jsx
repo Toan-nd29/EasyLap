@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { X } from 'lucide-react';
 import { formatCurrency } from '../utils/formatCurrency';
+import LaptopImage from './LaptopImage';
 
 const CompareTable = ({ laptops, onRemove }) => {
   if (!laptops || laptops.length === 0) return null;
@@ -40,11 +41,7 @@ const CompareTable = ({ laptops, onRemove }) => {
                     </button>
                     
                     <div className="w-24 h-24 mx-auto mb-4 bg-gray-100 rounded-lg p-2 flex items-center justify-center">
-                      {laptop.image_url ? (
-                        <img src={laptop.image_url} alt={laptop.name} className="w-full h-full object-contain mix-blend-multiply" />
-                      ) : (
-                        <span className="text-gray-400 text-xs">No image</span>
-                      )}
+                      <LaptopImage laptop={laptop} fallbackClassName="w-full h-full" iconClassName="w-5 h-5" />
                     </div>
                     
                     <div className="text-xs text-primary-600 font-bold uppercase tracking-wider mb-1">

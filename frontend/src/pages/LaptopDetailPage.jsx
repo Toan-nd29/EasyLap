@@ -4,6 +4,7 @@ import laptopApi from '../api/laptopApi';
 import userApi from '../api/userApi';
 import Loading from '../components/Loading';
 import ErrorMessage from '../components/ErrorMessage';
+import LaptopImage from '../components/LaptopImage';
 import { formatCurrency } from '../utils/formatCurrency';
 import {
   Heart, Scale, Cpu, HardDrive, Monitor, Weight, Shield, CheckCircle2, XCircle, ExternalLink
@@ -83,10 +84,11 @@ const LaptopDetailPage = () => {
         <div className="grid md:grid-cols-2 gap-8">
           {/* Left: Image */}
           <div className="card flex items-center justify-center min-h-[280px]">
-            {laptop.image_url
-              ? <img src={laptop.image_url} alt={laptop.name} className="max-h-64 object-contain mix-blend-multiply w-full" />
-              : <div className="text-gray-400 text-center">Chưa có ảnh</div>
-            }
+            <LaptopImage
+              laptop={laptop}
+              className="max-h-64 object-contain mix-blend-multiply w-full"
+              fallbackClassName="w-full min-h-[220px]"
+            />
           </div>
 
           {/* Right: Info */}

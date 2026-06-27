@@ -2,16 +2,13 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Heart, Scale, Cpu, HardDrive, Monitor } from 'lucide-react';
 import { formatCurrency } from '../utils/formatCurrency';
+import LaptopImage from './LaptopImage';
 
 const LaptopCard = ({ laptop, isFavorite, onToggleFavorite, onCompare }) => {
   return (
     <div className="card hover:shadow-md transition-shadow flex flex-col h-full overflow-hidden p-0 group">
       <div className="relative aspect-[4/3] bg-gray-100 p-4 flex items-center justify-center">
-        {laptop.image_url ? (
-          <img src={laptop.image_url} alt={laptop.name} className="w-full h-full object-contain mix-blend-multiply" />
-        ) : (
-          <div className="text-gray-400 font-medium">Chưa có ảnh</div>
-        )}
+        <LaptopImage laptop={laptop} fallbackClassName="w-full h-full" />
         <button 
           onClick={(e) => {
             e.preventDefault();

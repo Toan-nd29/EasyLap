@@ -4,6 +4,7 @@ import userApi from '../api/userApi';
 import laptopApi from '../api/laptopApi';
 import Loading from '../components/Loading';
 import ErrorMessage from '../components/ErrorMessage';
+import LaptopImage from '../components/LaptopImage';
 import { formatCurrency } from '../utils/formatCurrency';
 import { Heart, Trash2 } from 'lucide-react';
 
@@ -70,10 +71,7 @@ const FavoritesPage = () => {
               return (
                 <div key={fav.laptop_id || fav.id} className="card flex flex-col sm:flex-row items-start sm:items-center gap-4 hover:shadow-md transition-shadow">
                   <div className="w-20 h-20 bg-gray-100 rounded-lg flex-shrink-0 flex items-center justify-center overflow-hidden">
-                    {laptop.image_url
-                      ? <img src={laptop.image_url} alt={laptop.name} className="w-full h-full object-contain mix-blend-multiply" />
-                      : <span className="text-gray-400 text-xs">No image</span>
-                    }
+                    <LaptopImage laptop={laptop} fallbackClassName="w-full h-full" iconClassName="w-5 h-5" />
                   </div>
 
                   <div className="flex-grow">

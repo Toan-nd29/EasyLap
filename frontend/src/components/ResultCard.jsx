@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Heart, Scale, CheckCircle2, AlertTriangle } from 'lucide-react';
 import { formatCurrency } from '../utils/formatCurrency';
+import LaptopImage from './LaptopImage';
 
 const ResultCard = ({ result, isFavorite, onToggleFavorite, onCompare }) => {
   const { laptop, finalScore, matchReasons, tradeOffs } = result;
@@ -15,11 +16,7 @@ const ResultCard = ({ result, isFavorite, onToggleFavorite, onCompare }) => {
       </div>
 
       <div className="w-full md:w-1/3 flex-shrink-0 bg-gray-50 rounded-lg p-4 flex flex-col justify-center items-center relative">
-        {laptop.image_url ? (
-          <img src={laptop.image_url} alt={laptop.name} className="w-full h-48 object-contain mix-blend-multiply" />
-        ) : (
-          <div className="w-full h-48 flex items-center justify-center text-gray-400">Chưa có ảnh</div>
-        )}
+        <LaptopImage laptop={laptop} className="w-full h-48 object-contain mix-blend-multiply" fallbackClassName="w-full h-48" />
         
         <div className="mt-4 text-center w-full">
           <div className="text-sm font-medium text-primary-600 uppercase tracking-wider mb-1">

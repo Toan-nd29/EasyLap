@@ -13,7 +13,7 @@ class LaptopController {
 
   async getFilterOptions(req, res, next) {
     try {
-      const options = laptopService.getFilterOptions();
+      const options = await laptopService.getFilterOptions();
       return sendSuccess(res, options, 'Thành công');
     } catch (error) {
       next(error);

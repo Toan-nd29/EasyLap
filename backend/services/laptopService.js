@@ -19,6 +19,23 @@ const LAPTOP_LIST_COLUMNS = [
   'created_at'
 ].join(', ');
 
+const FILTER_OPTION_COLUMNS = [
+  'name',
+  'brand',
+  'price',
+  'cpu',
+  'ram',
+  'ssd',
+  'gpu',
+  'gpu_type',
+  'screen',
+  'battery_score',
+  'weight',
+  'upgradeable',
+  'suitable_for',
+  'tags'
+].join(', ');
+
 const BRAND_ALIASES = {
   mac: 'Apple',
   apple: 'Apple',
@@ -45,7 +62,6 @@ const USAGE_TAGS = {
   design_technical: ['design', 'color_screen', 'screen_good', 'gpu_dedicated'],
   student: ['student_friendly', 'office', 'coding'],
   touch: ['touch_screen'],
-  laptop_ai: ['cpu_strong'],
   content_creator: ['content_creator', 'screen_good', 'color_screen']
 };
 
@@ -63,11 +79,10 @@ const CPU_FILTERS = {
   amd_ryzen_5: ['cpu.ilike.%Ryzen 5%'],
   amd_ryzen_7: ['cpu.ilike.%Ryzen 7%', 'cpu.ilike.%Ryzen AI 7%'],
   amd_ryzen_9: ['cpu.ilike.%Ryzen 9%', 'cpu.ilike.%Ryzen AI 9%'],
+  apple_m1: ['cpu.ilike.%Apple M1%', 'cpu.ilike.%M1%'],
   apple_m2: ['cpu.ilike.%Apple M2%', 'cpu.ilike.%M2%'],
   apple_m3: ['cpu.ilike.%Apple M3%', 'cpu.ilike.%M3%'],
   apple_m4: ['cpu.ilike.%Apple M4%', 'cpu.ilike.%M4%'],
-  apple_m5: ['cpu.ilike.%Apple M5%', 'cpu.ilike.%M5%'],
-  a18_pro: ['cpu.ilike.%A18 Pro%'],
   qualcomm_snapdragon: ['cpu.ilike.%Qualcomm%', 'cpu.ilike.%Snapdragon%'],
   snapdragon_x_plus: ['cpu.ilike.%Snapdragon X Plus%']
 };
@@ -88,38 +103,47 @@ const GPU_FILTERS = {
 };
 
 const SCREEN_SIZE_FILTERS = {
-  '13': ['and(inches.gte.12.5,inches.lt.13.8)'],
-  '14': ['and(inches.gte.13.8,inches.lt.14.8)'],
-  '15_6': ['and(inches.gte.15,inches.lt.16)'],
-  '16': ['and(inches.gte.15.9,inches.lt.17)'],
-  over_15: ['inches.gte.15']
+  '13': ['screen.ilike.%13%'],
+  '14': ['screen.ilike.%14%'],
+  '15_6': ['screen.ilike.%15.6%'],
+  '16': ['screen.ilike.%16%'],
+  over_15: ['screen.ilike.%15%', 'screen.ilike.%16%', 'screen.ilike.%17%', 'screen.ilike.%18%']
 };
 
 const RESOLUTION_FILTERS = {
-  hd: ['x_res.lt.1600'],
+  hd: ['screen.ilike.%" HD%'],
   full_hd: [
     'screen.ilike.%Full HD%',
     'screen.ilike.%FHD%',
-    'and(x_res.gte.1900,x_res.lt.2000,y_res.gte.1000,y_res.lt.1300)'
+    'screen.ilike.%1920x1080%',
+    'screen.ilike.%1920 x 1080%'
   ],
-  qhd_2k: ['screen.ilike.%2K%', 'screen.ilike.%QHD%', 'and(x_res.gte.2500,x_res.lt.2900)'],
-  wuxga: ['screen.ilike.%WUXGA%', 'and(x_res.eq.1920,y_res.eq.1200)'],
-  '2_8k': ['screen.ilike.%2.8K%', 'and(x_res.gte.2800,x_res.lt.3000)'],
-  '3k': ['screen.ilike.%3K%', 'and(x_res.gte.2880,x_res.lt.3100)'],
-  '3_2k': ['screen.ilike.%3.2K%', 'and(x_res.gte.3100,x_res.lt.3300)'],
-  '4k': ['screen.ilike.%4K%', 'screen.ilike.%Ultra HD%', 'x_res.gte.3800'],
-  wqxga: ['screen.ilike.%WQXGA%', 'and(x_res.gte.2500,x_res.lt.2700,y_res.gte.1500)'],
+  qhd_2k: ['screen.ilike.%2K%', 'screen.ilike.%QHD%', 'screen.ilike.%2560%'],
+  wuxga: ['screen.ilike.%WUXGA%', 'screen.ilike.%1920x1200%', 'screen.ilike.%1920 x 1200%'],
+  '2_8k': ['screen.ilike.%2.8K%', 'screen.ilike.%2880%'],
+  '3k': ['screen.ilike.%3K%', 'screen.ilike.%3000%'],
+  '3_2k': ['screen.ilike.%3.2K%', 'screen.ilike.%3200%'],
+  '4k': ['screen.ilike.%4K%', 'screen.ilike.%Ultra HD%', 'screen.ilike.%3840%'],
+  wqxga: ['screen.ilike.%WQXGA%', 'screen.ilike.%2560 x 1600%', 'screen.ilike.%2560x1600%'],
   retina: ['screen.ilike.%Retina%'],
-  '5k': ['screen.ilike.%5K%', 'x_res.gte.5000']
+  '5k': ['screen.ilike.%5K%']
 };
 
 const FEATURE_TAGS = {
-  intel_evo: ['battery_good', 'lightweight'],
-  intel_gaming: ['gaming', 'high_refresh_rate'],
   battery_good: ['battery_good'],
-  lightweight: ['lightweight'],
+  lightweight: ['lightweight', 'portable'],
   upgradeable: ['upgradeable']
 };
+
+const TWO_IN_ONE_FILTERS = [
+  'name.ilike.%x360%',
+  'name.ilike.%360%',
+  'name.ilike.%2-in-1%',
+  'name.ilike.%2 in 1%',
+  'name.ilike.%Yoga%',
+  'screen.ilike.%2-in-1%',
+  'screen.ilike.%2 in 1%'
+];
 
 function toList(value) {
   if (value === undefined || value === null || value === '') return [];
@@ -152,6 +176,199 @@ function applyOrFilters(queryBuilder, filters) {
 function option(label, value, meta = {}) {
   return { label, value, ...meta };
 }
+
+function getTags(laptop) {
+  return Array.isArray(laptop.tags) ? laptop.tags : [];
+}
+
+function getSuitableFor(laptop) {
+  return Array.isArray(laptop.suitable_for) ? laptop.suitable_for : [];
+}
+
+function hasAnyTag(laptop, tags) {
+  const laptopTags = getTags(laptop);
+  return tags.some(tag => laptopTags.includes(tag));
+}
+
+function hasAnySuitableFor(laptop, groups) {
+  const suitableFor = getSuitableFor(laptop);
+  return groups.some(group => suitableFor.includes(group));
+}
+
+function getLaptopInches(laptop) {
+  const inches = Number(laptop.inches);
+  if (Number.isFinite(inches) && inches > 0) return inches;
+
+  const match = String(laptop.screen || '').match(/(\d+(?:\.\d+)?)\s*(?:"|inch)/i);
+  return match ? Number(match[1]) : null;
+}
+
+function getResolution(laptop) {
+  return {
+    x: Number(laptop.x_res) || 0,
+    y: Number(laptop.y_res) || 0,
+    screen: String(laptop.screen || '').toLowerCase()
+  };
+}
+
+function isPriceInRange(price, value) {
+  const range = parseBudgetRange(value);
+  const numericPrice = Number(price);
+  if (!range || !Number.isFinite(numericPrice)) return false;
+  if (numericPrice < range.minVnd) return false;
+  if (range.maxVnd !== null && numericPrice > range.maxVnd) return false;
+  return true;
+}
+
+function countMatching(laptops, matcher) {
+  return laptops.reduce((count, laptop) => count + (matcher(laptop) ? 1 : 0), 0);
+}
+
+function optionsWithCounts(definitions, laptops) {
+  return definitions
+    .map(definition => {
+      const count = countMatching(laptops, definition.match);
+      const { match, ...rest } = definition;
+      return { ...rest, count };
+    })
+    .filter(item => item.count > 0);
+}
+
+function makeDefinition(label, value, match, meta = {}) {
+  return { label, value, match, ...meta };
+}
+
+function formatStorageLabel(value) {
+  if (value >= 1000) return `${value / 1000}TB`;
+  return `${value}GB`;
+}
+
+const PRICE_RANGE_DEFS = [
+  makeDefinition('Dưới 10 triệu', 'under-10', laptop => isPriceInRange(laptop.price, 'under-10')),
+  makeDefinition('Từ 10 - 15 triệu', '10-15', laptop => isPriceInRange(laptop.price, '10-15')),
+  makeDefinition('Từ 15 - 20 triệu', '15-20', laptop => isPriceInRange(laptop.price, '15-20')),
+  makeDefinition('Từ 20 - 25 triệu', '20-25', laptop => isPriceInRange(laptop.price, '20-25')),
+  makeDefinition('Từ 25 - 30 triệu', '25-30', laptop => isPriceInRange(laptop.price, '25-30')),
+  makeDefinition('Trên 30 triệu', 'over-30', laptop => isPriceInRange(laptop.price, 'over-30'))
+];
+
+const USAGE_NEED_DEFS = [
+  makeDefinition('Học tập - Văn phòng', 'study_office', laptop => hasAnyTag(laptop, USAGE_TAGS.study_office) || hasAnySuitableFor(laptop, ['finance_student', 'office_worker', 'beginner'])),
+  makeDefinition('Cao cấp - Sang trọng', 'premium', laptop => Number(laptop.price) >= 30000000 && hasAnyTag(laptop, USAGE_TAGS.premium)),
+  makeDefinition('Mỏng nhẹ', 'lightweight', laptop => hasAnyTag(laptop, USAGE_TAGS.lightweight) || Number(laptop.weight) <= 1.5),
+  makeDefinition('Gaming', 'gaming', laptop => hasAnyTag(laptop, USAGE_TAGS.gaming) || laptop.gpu_type === 'dedicated'),
+  makeDefinition('Đồ họa - Kỹ thuật', 'design_technical', laptop => hasAnyTag(laptop, USAGE_TAGS.design_technical) || hasAnySuitableFor(laptop, ['design_student'])),
+  makeDefinition('Laptop sáng tạo nội dung', 'content_creator', laptop => hasAnyTag(laptop, USAGE_TAGS.content_creator) || hasAnySuitableFor(laptop, ['content_creator'])),
+  makeDefinition('Văn phòng', 'office', laptop => hasAnyTag(laptop, USAGE_TAGS.office) || hasAnySuitableFor(laptop, ['office_worker'])),
+  makeDefinition('Sinh viên', 'student', laptop => hasAnyTag(laptop, USAGE_TAGS.student) || hasAnySuitableFor(laptop, ['it_student', 'finance_student', 'design_student'])),
+  makeDefinition('Cảm ứng', 'touch', laptop => laptop.touch_screen === true || /touch/i.test(String(laptop.screen || ''))),
+  makeDefinition('Laptop AI', 'laptop_ai', laptop => /\bai\b/i.test(`${laptop.name || ''} ${laptop.cpu || ''}`), { badge: 'HOT' })
+];
+
+const CPU_FAMILY_DEFS = [
+  makeDefinition('Laptop Core i3', 'core_i3', laptop => /core\s+i3|i3-/i.test(laptop.cpu || '')),
+  makeDefinition('Laptop Core i5', 'core_i5', laptop => /core\s+i5|i5-/i.test(laptop.cpu || '')),
+  makeDefinition('Laptop Core i7', 'core_i7', laptop => /core\s+i7|i7-/i.test(laptop.cpu || '')),
+  makeDefinition('Laptop Core i9', 'core_i9', laptop => /core\s+i9|i9-/i.test(laptop.cpu || '')),
+  makeDefinition('Laptop Core U5', 'core_u5', laptop => /core\s+ultra\s+5|core\s+u5|core\s+5\b/i.test(laptop.cpu || '')),
+  makeDefinition('Laptop Core U7', 'core_u7', laptop => /core\s+ultra\s+7|core\s+u7|core\s+7\b/i.test(laptop.cpu || '')),
+  makeDefinition('Laptop Core U9', 'core_u9', laptop => /core\s+ultra\s+9|core\s+u9|core\s+9\b/i.test(laptop.cpu || '')),
+  makeDefinition('Intel Celeron / Pentium', 'celeron_pentium', laptop => /celeron|pentium/i.test(laptop.cpu || '')),
+  makeDefinition('Apple M1', 'apple_m1', laptop => /apple\s*m1|\bm1\b/i.test(laptop.cpu || '')),
+  makeDefinition('Apple M2', 'apple_m2', laptop => /apple\s*m2|\bm2\b/i.test(laptop.cpu || '')),
+  makeDefinition('Apple M3', 'apple_m3', laptop => /apple\s*m3|\bm3\b/i.test(laptop.cpu || '')),
+  makeDefinition('Apple M4 Series', 'apple_m4', laptop => /apple\s*m4|\bm4\b/i.test(laptop.cpu || '')),
+  makeDefinition('AMD Ryzen', 'amd_ryzen', laptop => /ryzen/i.test(laptop.cpu || '')),
+  makeDefinition('AMD Ryzen 5', 'amd_ryzen_5', laptop => /ryzen(?:\s+ai)?\s+5/i.test(laptop.cpu || '')),
+  makeDefinition('AMD Ryzen 7', 'amd_ryzen_7', laptop => /ryzen(?:\s+ai)?\s+7/i.test(laptop.cpu || '')),
+  makeDefinition('AMD Ryzen 9', 'amd_ryzen_9', laptop => /ryzen(?:\s+ai)?\s+9/i.test(laptop.cpu || '')),
+  makeDefinition('Intel Core Ultra', 'intel_core_ultra', laptop => /core\s+ultra/i.test(laptop.cpu || ''), { badge: 'HOT' }),
+  makeDefinition('Qualcomm Snapdragon', 'qualcomm_snapdragon', laptop => /qualcomm|snapdragon/i.test(laptop.cpu || '')),
+  makeDefinition('Snapdragon X Plus', 'snapdragon_x_plus', laptop => /snapdragon\s+x\s+plus/i.test(laptop.cpu || ''))
+];
+
+const GPU_FAMILY_DEFS = [
+  makeDefinition('Card Onboard', 'onboard', laptop => laptop.gpu_type === 'integrated'),
+  makeDefinition('NVIDIA GeForce Series', 'nvidia_geforce', laptop => /nvidia|geforce|rtx|gtx/i.test(laptop.gpu || '')),
+  makeDefinition('AMD Radeon Series', 'amd_radeon', laptop => /amd\s+radeon|radeon/i.test(laptop.gpu || ''))
+];
+
+const SCREEN_SIZE_DEFS = [
+  makeDefinition('Laptop 13 inch', '13', laptop => {
+    const inches = getLaptopInches(laptop);
+    return inches >= 12.5 && inches < 13.8;
+  }),
+  makeDefinition('Laptop 14 inch', '14', laptop => {
+    const inches = getLaptopInches(laptop);
+    return inches >= 13.8 && inches < 14.8;
+  }),
+  makeDefinition('Laptop 15.6 inch', '15_6', laptop => {
+    const inches = getLaptopInches(laptop);
+    return inches >= 15 && inches < 16;
+  }),
+  makeDefinition('Laptop 16 inch', '16', laptop => {
+    const inches = getLaptopInches(laptop);
+    return inches >= 15.9 && inches < 17;
+  }),
+  makeDefinition('Trên 15 inch', 'over_15', laptop => {
+    const inches = getLaptopInches(laptop);
+    return inches >= 15;
+  })
+];
+
+const RESOLUTION_DEFS = [
+  makeDefinition('HD', 'hd', laptop => {
+    const { x, screen } = getResolution(laptop);
+    return (x > 0 && x < 1600) || (/\bhd\b/i.test(screen) && !/fhd|full\s*hd|qhd|wqhd|ultra\s*hd/i.test(screen));
+  }),
+  makeDefinition('Full HD', 'full_hd', laptop => {
+    const { x, y, screen } = getResolution(laptop);
+    return /full\s*hd|fhd/i.test(screen) || (x >= 1900 && x < 2000 && y >= 1000 && y < 1300);
+  }),
+  makeDefinition('2K (Quad HD)', 'qhd_2k', laptop => {
+    const { x, screen } = getResolution(laptop);
+    return /2k|qhd/i.test(screen) || (x >= 2500 && x < 2900);
+  }),
+  makeDefinition('WUXGA', 'wuxga', laptop => {
+    const { x, y, screen } = getResolution(laptop);
+    return /wuxga/i.test(screen) || (x === 1920 && y === 1200);
+  }),
+  makeDefinition('2.8K', '2_8k', laptop => {
+    const { x, screen } = getResolution(laptop);
+    return /2\.8k/i.test(screen) || (x >= 2800 && x < 3000);
+  }),
+  makeDefinition('3K', '3k', laptop => {
+    const { x, screen } = getResolution(laptop);
+    return /\b3k\b/i.test(screen) || (x >= 2880 && x < 3100);
+  }),
+  makeDefinition('3.2K', '3_2k', laptop => {
+    const { x, screen } = getResolution(laptop);
+    return /3\.2k/i.test(screen) || (x >= 3100 && x < 3300);
+  }),
+  makeDefinition('4K (Ultra HD)', '4k', laptop => {
+    const { x, screen } = getResolution(laptop);
+    return /4k|ultra\s*hd/i.test(screen) || x >= 3800;
+  }),
+  makeDefinition('WQXGA', 'wqxga', laptop => {
+    const { x, y, screen } = getResolution(laptop);
+    return /wqxga/i.test(screen) || (x >= 2500 && x < 2700 && y >= 1500);
+  }),
+  makeDefinition('Retina', 'retina', laptop => /retina/i.test(laptop.screen || '')),
+  makeDefinition('5K', '5k', laptop => {
+    const { x, screen } = getResolution(laptop);
+    return /5k/i.test(screen) || x >= 5000;
+  })
+];
+
+const FEATURE_DEFS = [
+  makeDefinition('Xoay gập 360 độ (2 in 1)', 'two_in_one', laptop => /x360|360|2-in-1|2 in 1|yoga/i.test(`${laptop.name || ''} ${laptop.screen || ''}`)),
+  makeDefinition('Cảm ứng', 'touch_screen', laptop => laptop.touch_screen === true || /touch/i.test(laptop.screen || '')),
+  makeDefinition('Màn hình IPS', 'ips', laptop => laptop.ips === true || /ips/i.test(laptop.screen || '')),
+  makeDefinition('Màn hình OLED', 'oled', laptop => /oled/i.test(laptop.screen || '')),
+  makeDefinition('Pin tốt', 'battery_good', laptop => hasAnyTag(laptop, ['battery_good']) || Number(laptop.battery_score) >= 7),
+  makeDefinition('Mỏng nhẹ', 'lightweight', laptop => hasAnyTag(laptop, ['lightweight', 'portable']) || Number(laptop.weight) <= 1.5),
+  makeDefinition('Dễ nâng cấp', 'upgradeable', laptop => laptop.upgradeable === true || hasAnyTag(laptop, ['upgradeable']))
+];
 
 class LaptopService {
   async getAll(query) {
@@ -250,8 +467,8 @@ class LaptopService {
 
     const selectedUsageNeeds = toList(usageNeeds);
     const selectedFeatures = toList(features);
-    if (selectedUsageNeeds.includes('mac_cto')) {
-      queryBuilder = queryBuilder.eq('brand', 'Apple');
+    if (selectedUsageNeeds.includes('laptop_ai')) {
+      queryBuilder = applyOrFilters(queryBuilder, ['name.ilike.%AI%', 'cpu.ilike.%AI%']);
     }
 
     const selectedTags = unique([
@@ -263,11 +480,14 @@ class LaptopService {
       queryBuilder = queryBuilder.overlaps('tags', selectedTags);
     }
 
-    if (selectedFeatures.includes('touch_screen') || selectedFeatures.includes('two_in_one')) {
-      queryBuilder = queryBuilder.eq('touch_screen', true);
+    if (selectedFeatures.includes('two_in_one')) {
+      queryBuilder = applyOrFilters(queryBuilder, TWO_IN_ONE_FILTERS);
+    }
+    if (selectedFeatures.includes('touch_screen')) {
+      queryBuilder = queryBuilder.ilike('screen', '%Touch%');
     }
     if (selectedFeatures.includes('ips')) {
-      queryBuilder = queryBuilder.eq('ips', true);
+      queryBuilder = queryBuilder.ilike('screen', '%IPS%');
     }
     if (selectedFeatures.includes('oled')) {
       queryBuilder = queryBuilder.ilike('screen', '%OLED%');
@@ -276,12 +496,10 @@ class LaptopService {
       queryBuilder = queryBuilder.eq('upgradeable', true);
     }
 
-    const selectedCpuFamilies = toList(cpuFamilies);
-    let cpuFilters = selectedCpuFamilies.flatMap(value => CPU_FILTERS[value] || []);
-    if (selectedFeatures.includes('intel_evo') || selectedFeatures.includes('intel_gaming')) {
-      cpuFilters = [...cpuFilters, 'cpu.ilike.%Intel%'];
-    }
-    queryBuilder = applyOrFilters(queryBuilder, cpuFilters);
+    queryBuilder = applyOrFilters(
+      queryBuilder,
+      toList(cpuFamilies).flatMap(value => CPU_FILTERS[value] || [])
+    );
 
     queryBuilder = applyOrFilters(
       queryBuilder,
@@ -341,111 +559,52 @@ class LaptopService {
     return data;
   }
 
-  getFilterOptions() {
+  async getFilterOptions() {
+    const { data: laptops, error } = await supabaseAdmin
+      .from('laptops')
+      .select(FILTER_OPTION_COLUMNS)
+      .range(0, 9999);
+
+    if (error) throw error;
+
+    const laptopList = laptops || [];
+    const brandCounts = new Map();
+    laptopList.forEach(laptop => {
+      if (!laptop.brand) return;
+      const normalizedBrand = normalizeBrand(laptop.brand);
+      brandCounts.set(normalizedBrand, (brandCounts.get(normalizedBrand) || 0) + 1);
+    });
+
+    const brands = [...brandCounts.entries()]
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([brand, count]) => option(brand === 'Apple' ? 'Mac' : brand, brand, { count }));
+
+    const ramOptions = numericList(laptopList.map(laptop => laptop.ram))
+      .sort((a, b) => a - b)
+      .map(value => option(`${value}GB`, value, {
+        count: laptopList.filter(laptop => Number(laptop.ram) === value).length
+      }));
+
+    const storageOptions = Object.entries(STORAGE_VALUES)
+      .map(([value, acceptedValues]) => {
+        const numericValue = Number(value);
+        const count = laptopList.filter(laptop => acceptedValues.includes(Number(laptop.ssd))).length;
+        return option(formatStorageLabel(numericValue), numericValue, { count });
+      })
+      .filter(item => item.count > 0);
+
     return {
-      brands: [
-        option('Mac', 'Apple'),
-        option('ASUS', 'ASUS'),
-        option('Lenovo', 'Lenovo'),
-        option('Dell', 'Dell'),
-        option('HP', 'HP'),
-        option('Acer', 'Acer'),
-        option('LG', 'LG'),
-        option('MSI', 'MSI'),
-        option('Gigabyte', 'Gigabyte'),
-        option('Microsoft Surface', 'Microsoft Surface'),
-        option('Masstel', 'Masstel'),
-        option('Samsung', 'Samsung')
-      ],
-      priceRanges: [
-        option('Dưới 10 triệu', 'under-10'),
-        option('Từ 10 - 15 triệu', '10-15'),
-        option('Từ 15 - 20 triệu', '15-20'),
-        option('Từ 20 - 25 triệu', '20-25'),
-        option('Từ 25 - 30 triệu', '25-30'),
-        option('Trên 30 triệu', 'over-30')
-      ],
-      usageNeeds: [
-        option('Học tập - Văn phòng', 'study_office'),
-        option('Cao cấp - Sang trọng', 'premium'),
-        option('Mỏng nhẹ', 'lightweight'),
-        option('Gaming', 'gaming'),
-        option('Đồ họa - Kỹ thuật', 'design_technical'),
-        option('Laptop sáng tạo nội dung', 'content_creator'),
-        option('Văn phòng', 'office'),
-        option('Sinh viên', 'student'),
-        option('Cảm ứng', 'touch'),
-        option('Laptop AI', 'laptop_ai', { badge: 'HOT' }),
-        option('Mac CTO - Nâng cấp theo cách của bạn', 'mac_cto')
-      ],
-      cpuFamilies: [
-        option('Laptop Core i3', 'core_i3'),
-        option('Laptop Core i5', 'core_i5'),
-        option('Laptop Core i7', 'core_i7'),
-        option('Laptop Core i9', 'core_i9'),
-        option('Laptop Core U5', 'core_u5'),
-        option('Laptop Core U7', 'core_u7'),
-        option('Laptop Core U9', 'core_u9'),
-        option('Intel Celeron / Pentium', 'celeron_pentium'),
-        option('Apple M2', 'apple_m2'),
-        option('Apple M3', 'apple_m3'),
-        option('Apple M4 Series', 'apple_m4'),
-        option('Apple M5 Series', 'apple_m5', { badge: 'MỚI' }),
-        option('AMD Ryzen', 'amd_ryzen'),
-        option('AMD Ryzen 5', 'amd_ryzen_5'),
-        option('AMD Ryzen 7', 'amd_ryzen_7'),
-        option('AMD Ryzen 9', 'amd_ryzen_9'),
-        option('Intel Core Ultra', 'intel_core_ultra', { badge: 'HOT' }),
-        option('Qualcomm Snapdragon', 'qualcomm_snapdragon'),
-        option('Snapdragon X Plus', 'snapdragon_x_plus'),
-        option('A18 Pro', 'a18_pro', { badge: 'MỚI' })
-      ],
-      ramOptions: [4, 8, 12, 16, 24, 32, 36, 48, 64, 128].map(value => option(`${value}GB`, value)),
-      storageOptions: [
-        option('32GB', 32),
-        option('256GB', 256),
-        option('512GB', 512),
-        option('1TB', 1000),
-        option('2TB', 2000),
-        option('8TB', 8000)
-      ],
-      gpuFamilies: [
-        option('Card Onboard', 'onboard'),
-        option('NVIDIA GeForce Series', 'nvidia_geforce'),
-        option('AMD Radeon Series', 'amd_radeon')
-      ],
-      screenSizes: [
-        option('Laptop 13 inch', '13'),
-        option('Laptop 14 inch', '14'),
-        option('Laptop 15.6 inch', '15_6'),
-        option('Laptop 16 inch', '16'),
-        option('Trên 15 inch', 'over_15')
-      ],
-      resolutionTypes: [
-        option('HD', 'hd'),
-        option('Full HD', 'full_hd'),
-        option('2K (Quad HD)', 'qhd_2k'),
-        option('WUXGA', 'wuxga'),
-        option('2.8K', '2_8k'),
-        option('3K', '3k'),
-        option('3.2K', '3_2k'),
-        option('4K (Ultra HD)', '4k'),
-        option('WQXGA', 'wqxga'),
-        option('Retina', 'retina'),
-        option('5K', '5k')
-      ],
-      features: [
-        option('Wi-Fi 6', 'wifi_6'),
-        option('Công nghệ Intel Evo', 'intel_evo'),
-        option('Bảo mật vân tay', 'fingerprint'),
-        option('Công nghệ Intel Gaming', 'intel_gaming'),
-        option('Xoay gập 360 độ (2 in 1)', 'two_in_one'),
-        option('Cảm ứng', 'touch_screen'),
-        option('Màn hình IPS', 'ips'),
-        option('Màn hình OLED', 'oled'),
-        option('Pin tốt', 'battery_good'),
-        option('Dễ nâng cấp', 'upgradeable')
-      ],
+      totalLaptops: laptopList.length,
+      brands,
+      priceRanges: optionsWithCounts(PRICE_RANGE_DEFS, laptopList),
+      usageNeeds: optionsWithCounts(USAGE_NEED_DEFS, laptopList),
+      cpuFamilies: optionsWithCounts(CPU_FAMILY_DEFS, laptopList),
+      ramOptions,
+      storageOptions,
+      gpuFamilies: optionsWithCounts(GPU_FAMILY_DEFS, laptopList),
+      screenSizes: optionsWithCounts(SCREEN_SIZE_DEFS, laptopList),
+      resolutionTypes: optionsWithCounts(RESOLUTION_DEFS, laptopList),
+      features: optionsWithCounts(FEATURE_DEFS, laptopList),
       tags: [
         'coding',
         'office',

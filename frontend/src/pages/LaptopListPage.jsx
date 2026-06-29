@@ -1,11 +1,19 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import {
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  ChevronUp,
+  Search,
+  SlidersHorizontal,
+  X
+} from 'lucide-react';
 import laptopApi from '../api/laptopApi';
 import userApi from '../api/userApi';
 import LaptopCard from '../components/LaptopCard';
 import Loading from '../components/Loading';
 import ErrorMessage from '../components/ErrorMessage';
-import { Search, SlidersHorizontal, ChevronLeft, ChevronRight, X } from 'lucide-react';
 
 const EMPTY_FILTERS = {
   brands: [],
@@ -19,119 +27,32 @@ const EMPTY_FILTERS = {
   features: []
 };
 
-const option = (label, value, meta = {}) => ({ label, value, ...meta });
-
-const FILTER_FALLBACKS = {
-  brands: [
-    option('Mac', 'Apple'),
-    option('ASUS', 'ASUS'),
-    option('Lenovo', 'Lenovo'),
-    option('Dell', 'Dell'),
-    option('HP', 'HP'),
-    option('Acer', 'Acer'),
-    option('LG', 'LG'),
-    option('MSI', 'MSI'),
-    option('Gigabyte', 'Gigabyte'),
-    option('Microsoft Surface', 'Microsoft Surface'),
-    option('Masstel', 'Masstel'),
-    option('Samsung', 'Samsung')
-  ],
+const MINIMAL_FILTERS = {
+  totalLaptops: 0,
+  brands: [],
   priceRanges: [
-    option('Dưới 10 triệu', 'under-10'),
-    option('Từ 10 - 15 triệu', '10-15'),
-    option('Từ 15 - 20 triệu', '15-20'),
-    option('Từ 20 - 25 triệu', '20-25'),
-    option('Từ 25 - 30 triệu', '25-30'),
-    option('Trên 30 triệu', 'over-30')
+    { label: 'Dưới 10 triệu', value: 'under-10' },
+    { label: 'Từ 10 - 15 triệu', value: '10-15' },
+    { label: 'Từ 15 - 20 triệu', value: '15-20' },
+    { label: 'Từ 20 - 25 triệu', value: '20-25' },
+    { label: 'Từ 25 - 30 triệu', value: '25-30' },
+    { label: 'Trên 30 triệu', value: 'over-30' }
   ],
-  usageNeeds: [
-    option('Học tập - Văn phòng', 'study_office'),
-    option('Cao cấp - Sang trọng', 'premium'),
-    option('Mỏng nhẹ', 'lightweight'),
-    option('Gaming', 'gaming'),
-    option('Đồ họa - Kỹ thuật', 'design_technical'),
-    option('Laptop sáng tạo nội dung', 'content_creator'),
-    option('Văn phòng', 'office'),
-    option('Sinh viên', 'student'),
-    option('Cảm ứng', 'touch'),
-    option('Laptop AI', 'laptop_ai', { badge: 'HOT' }),
-    option('Mac CTO - Nâng cấp theo cách của bạn', 'mac_cto')
-  ],
-  cpuFamilies: [
-    option('Laptop Core i3', 'core_i3'),
-    option('Laptop Core i5', 'core_i5'),
-    option('Laptop Core i7', 'core_i7'),
-    option('Laptop Core i9', 'core_i9'),
-    option('Laptop Core U5', 'core_u5'),
-    option('Laptop Core U7', 'core_u7'),
-    option('Laptop Core U9', 'core_u9'),
-    option('Intel Celeron / Pentium', 'celeron_pentium'),
-    option('Apple M2', 'apple_m2'),
-    option('Apple M3', 'apple_m3'),
-    option('Apple M4 Series', 'apple_m4'),
-    option('Apple M5 Series', 'apple_m5', { badge: 'MỚI' }),
-    option('AMD Ryzen', 'amd_ryzen'),
-    option('AMD Ryzen 5', 'amd_ryzen_5'),
-    option('AMD Ryzen 7', 'amd_ryzen_7'),
-    option('AMD Ryzen 9', 'amd_ryzen_9'),
-    option('Intel Core Ultra', 'intel_core_ultra', { badge: 'HOT' }),
-    option('Qualcomm Snapdragon', 'qualcomm_snapdragon'),
-    option('Snapdragon X Plus', 'snapdragon_x_plus'),
-    option('A18 Pro', 'a18_pro', { badge: 'MỚI' })
-  ],
-  ramOptions: [4, 8, 12, 16, 24, 32, 36, 48, 64, 128].map(value => option(`${value}GB`, value)),
-  storageOptions: [
-    option('32GB', 32),
-    option('256GB', 256),
-    option('512GB', 512),
-    option('1TB', 1000),
-    option('2TB', 2000),
-    option('8TB', 8000)
-  ],
-  gpuFamilies: [
-    option('Card Onboard', 'onboard'),
-    option('NVIDIA GeForce Series', 'nvidia_geforce'),
-    option('AMD Radeon Series', 'amd_radeon')
-  ],
-  screenSizes: [
-    option('Laptop 13 inch', '13'),
-    option('Laptop 14 inch', '14'),
-    option('Laptop 15.6 inch', '15_6'),
-    option('Laptop 16 inch', '16'),
-    option('Trên 15 inch', 'over_15')
-  ],
-  resolutionTypes: [
-    option('HD', 'hd'),
-    option('Full HD', 'full_hd'),
-    option('2K (Quad HD)', 'qhd_2k'),
-    option('WUXGA', 'wuxga'),
-    option('2.8K', '2_8k'),
-    option('3K', '3k'),
-    option('3.2K', '3_2k'),
-    option('4K (Ultra HD)', '4k'),
-    option('WQXGA', 'wqxga'),
-    option('Retina', 'retina'),
-    option('5K', '5k')
-  ],
-  features: [
-    option('Wi-Fi 6', 'wifi_6'),
-    option('Công nghệ Intel Evo', 'intel_evo'),
-    option('Bảo mật vân tay', 'fingerprint'),
-    option('Công nghệ Intel Gaming', 'intel_gaming'),
-    option('Xoay gập 360 độ (2 in 1)', 'two_in_one'),
-    option('Cảm ứng', 'touch_screen'),
-    option('Màn hình IPS', 'ips'),
-    option('Màn hình OLED', 'oled'),
-    option('Pin tốt', 'battery_good'),
-    option('Dễ nâng cấp', 'upgradeable')
-  ]
+  usageNeeds: [],
+  cpuFamilies: [],
+  ramOptions: [],
+  storageOptions: [],
+  gpuFamilies: [],
+  screenSizes: [],
+  resolutionTypes: [],
+  features: []
 };
 
 const FILTER_GROUPS = [
   { key: 'brands', title: 'Hãng sản xuất' },
   { key: 'priceRanges', title: 'Phân khúc giá', single: true },
-  { key: 'cpuFamilies', title: 'CPU' },
   { key: 'usageNeeds', title: 'Nhu cầu sử dụng' },
+  { key: 'cpuFamilies', title: 'CPU' },
   { key: 'ramOptions', title: 'Dung lượng RAM' },
   { key: 'storageOptions', title: 'Ổ cứng' },
   { key: 'gpuFamilies', title: 'Card đồ họa' },
@@ -140,18 +61,22 @@ const FILTER_GROUPS = [
   { key: 'features', title: 'Tính năng đặc biệt' }
 ];
 
-function normalizeOptions(options, key) {
-  const source = Array.isArray(options) && options.length > 0 ? options : FILTER_FALLBACKS[key] || [];
+const DEFAULT_COLLAPSED_GROUPS = {
+  ramOptions: true,
+  storageOptions: true,
+  gpuFamilies: true,
+  screenSizes: true,
+  resolutionTypes: true,
+  features: true
+};
 
-  return source.map(item => {
-    if (typeof item === 'object' && item !== null && 'label' in item && 'value' in item) {
-      return item;
-    }
+const OPTION_PREVIEW_LIMIT = 8;
 
-    const value = item;
-    const label = key === 'ramOptions' || key === 'storageOptions' ? `${item}GB` : String(item);
-    return { label, value };
-  });
+function normalizeOptions(options) {
+  if (!Array.isArray(options)) return [];
+  return options
+    .filter(item => item && item.value !== undefined && item.label)
+    .map(item => ({ ...item, value: String(item.value) }));
 }
 
 const LaptopListPage = () => {
@@ -160,20 +85,29 @@ const LaptopListPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [favorites, setFavorites] = useState([]);
-
   const [pagination, setPagination] = useState({ page: 1, limit: 20, total: 0, totalPages: 1 });
-  const [filterOptions, setFilterOptions] = useState(FILTER_FALLBACKS);
-
+  const [filterOptions, setFilterOptions] = useState(MINIMAL_FILTERS);
   const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [priceRange, setPriceRange] = useState('');
   const [selectedFilters, setSelectedFilters] = useState(EMPTY_FILTERS);
   const [sort, setSort] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
+  const [collapsedGroups, setCollapsedGroups] = useState(DEFAULT_COLLAPSED_GROUPS);
+  const [expandedOptionGroups, setExpandedOptionGroups] = useState({});
 
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedSearch(search), 500);
     return () => clearTimeout(timer);
   }, [search]);
+
+  const resetPage = () => {
+    setPagination(prev => ({ ...prev, page: 1 }));
+  };
+
+  const activeFilterCount = useMemo(() => (
+    Object.values(selectedFilters).reduce((total, values) => total + values.length, 0) + (priceRange ? 1 : 0)
+  ), [priceRange, selectedFilters]);
 
   const fetchFilterOptions = useCallback(async () => {
     try {
@@ -204,9 +138,7 @@ const LaptopListPage = () => {
       if (priceRange) queryParams.priceRange = priceRange;
 
       Object.entries(selectedFilters).forEach(([key, values]) => {
-        if (values.length > 0) {
-          queryParams[key] = values.join(',');
-        }
+        if (values.length > 0) queryParams[key] = values.join(',');
       });
 
       const [laptopRes, favRes] = await Promise.allSettled([
@@ -216,9 +148,7 @@ const LaptopListPage = () => {
 
       if (laptopRes.status === 'fulfilled' && laptopRes.value.success) {
         setLaptops(laptopRes.value.data || []);
-        if (laptopRes.value.pagination) {
-          setPagination(laptopRes.value.pagination);
-        }
+        if (laptopRes.value.pagination) setPagination(laptopRes.value.pagination);
       } else {
         setError('Không thể tải danh sách laptop.');
       }
@@ -243,17 +173,12 @@ const LaptopListPage = () => {
     fetchData();
   }, [fetchData]);
 
-  const resetPage = () => {
-    setPagination(prev => ({ ...prev, page: 1 }));
-  };
-
   const toggleFilter = (key, value) => {
-    const normalizedValue = String(value);
     setSelectedFilters(prev => {
       const current = prev[key] || [];
-      const nextValues = current.includes(normalizedValue)
-        ? current.filter(item => item !== normalizedValue)
-        : [...current, normalizedValue];
+      const nextValues = current.includes(value)
+        ? current.filter(item => item !== value)
+        : [...current, value];
 
       return { ...prev, [key]: nextValues };
     });
@@ -261,9 +186,16 @@ const LaptopListPage = () => {
   };
 
   const togglePriceRange = (value) => {
-    const normalizedValue = String(value);
-    setPriceRange(prev => (prev === normalizedValue ? '' : normalizedValue));
+    setPriceRange(prev => (prev === value ? '' : value));
     resetPage();
+  };
+
+  const toggleGroupCollapsed = (key) => {
+    setCollapsedGroups(prev => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const toggleOptionGroupExpanded = (key) => {
+    setExpandedOptionGroups(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
   const clearFilters = () => {
@@ -306,14 +238,14 @@ const LaptopListPage = () => {
     navigate('/compare');
   };
 
-  const activeFilterCount = Object.values(selectedFilters).reduce((total, values) => total + values.length, 0)
-    + (priceRange ? 1 : 0);
+  const getGroupActiveCount = (key) => {
+    if (key === 'priceRanges') return priceRange ? 1 : 0;
+    return selectedFilters[key]?.length || 0;
+  };
 
   const renderChip = (group, item) => {
     const value = String(item.value);
-    const active = group.single
-      ? priceRange === value
-      : selectedFilters[group.key]?.includes(value);
+    const active = group.single ? priceRange === value : selectedFilters[group.key]?.includes(value);
     const onClick = group.single ? () => togglePriceRange(value) : () => toggleFilter(group.key, value);
 
     return (
@@ -322,13 +254,20 @@ const LaptopListPage = () => {
         type="button"
         aria-pressed={active}
         onClick={onClick}
-        className={`inline-flex min-h-[38px] max-w-full items-center gap-1 rounded-full border px-4 py-2 text-left text-sm font-semibold transition-colors ${
+        className={`inline-flex min-h-[36px] max-w-full items-center gap-1.5 rounded-full border px-3 py-1.5 text-left text-sm font-semibold transition-colors ${
           active
             ? 'border-primary-600 bg-primary-600 text-white shadow-sm'
             : 'border-gray-200 bg-gray-50 text-gray-800 hover:border-primary-300 hover:bg-primary-50'
         }`}
       >
         <span className="min-w-0 break-words leading-tight">{item.label}</span>
+        {Number.isFinite(Number(item.count)) && (
+          <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-none ${
+            active ? 'bg-white/20 text-white' : 'bg-white text-gray-500'
+          }`}>
+            {item.count}
+          </span>
+        )}
         {item.badge && (
           <span className={`rounded px-1.5 py-0.5 text-[10px] font-bold leading-none ${
             active ? 'bg-white text-red-600' : 'bg-red-600 text-white'
@@ -340,13 +279,65 @@ const LaptopListPage = () => {
     );
   };
 
+  const renderFilterGroup = (group) => {
+    const options = normalizeOptions(filterOptions[group.key]);
+    if (options.length === 0) return null;
+
+    const activeCount = getGroupActiveCount(group.key);
+    const isCollapsed = Boolean(collapsedGroups[group.key]);
+    const isExpanded = Boolean(expandedOptionGroups[group.key]);
+    const visibleOptions = isExpanded ? options : options.slice(0, OPTION_PREVIEW_LIMIT);
+    const hasMoreOptions = options.length > OPTION_PREVIEW_LIMIT;
+
+    return (
+      <section key={group.key} className="min-w-0 rounded-lg border border-gray-100 bg-white">
+        <button
+          type="button"
+          onClick={() => toggleGroupCollapsed(group.key)}
+          className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left"
+        >
+          <span className="flex min-w-0 items-center gap-2">
+            <span className="truncate text-base font-bold text-gray-800">{group.title}</span>
+            {activeCount > 0 && (
+              <span className="rounded-full bg-primary-50 px-2 py-0.5 text-xs font-bold text-primary-700">
+                {activeCount}
+              </span>
+            )}
+          </span>
+          {isCollapsed ? (
+            <ChevronDown className="h-4 w-4 flex-shrink-0 text-gray-500" />
+          ) : (
+            <ChevronUp className="h-4 w-4 flex-shrink-0 text-gray-500" />
+          )}
+        </button>
+
+        {!isCollapsed && (
+          <div className="border-t border-gray-100 px-4 py-4">
+            <div className="flex flex-wrap gap-2">
+              {visibleOptions.map(item => renderChip(group, item))}
+            </div>
+            {hasMoreOptions && (
+              <button
+                type="button"
+                onClick={() => toggleOptionGroupExpanded(group.key)}
+                className="mt-3 text-sm font-semibold text-primary-700 hover:text-primary-800"
+              >
+                {isExpanded ? 'Thu gọn lựa chọn' : `Xem thêm ${options.length - OPTION_PREVIEW_LIMIT} lựa chọn`}
+              </button>
+            )}
+          </div>
+        )}
+      </section>
+    );
+  };
+
   return (
     <div className="bg-gray-50 min-h-[calc(100vh-64px)] py-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-8">
+        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Danh sách Laptop</h1>
-            <p className="text-gray-600 mt-1">Tìm thấy {pagination.total} laptop</p>
+            <p className="mt-1 text-gray-600">Tìm thấy {pagination.total} laptop</p>
           </div>
           <select
             value={sort}
@@ -354,7 +345,7 @@ const LaptopListPage = () => {
               setSort(event.target.value);
               resetPage();
             }}
-            className="w-full sm:w-auto px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-primary-500 focus:border-primary-500"
+            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-primary-500 sm:w-auto"
           >
             <option value="">Mới nhất</option>
             <option value="price_asc">Giá: Thấp đến cao</option>
@@ -368,10 +359,15 @@ const LaptopListPage = () => {
         {error && <div className="mb-6"><ErrorMessage message={error} /></div>}
 
         <div className="card mb-8">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between mb-6">
+          <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex items-center gap-2">
-              <SlidersHorizontal className="w-5 h-5 text-primary-600" />
-              <h2 className="font-semibold text-gray-900">Bộ lọc</h2>
+              <SlidersHorizontal className="h-5 w-5 text-primary-600" />
+              <div>
+                <h2 className="font-semibold text-gray-900">Bộ lọc</h2>
+                {Number(filterOptions.totalLaptops) > 0 && (
+                  <p className="text-xs text-gray-500">Theo {filterOptions.totalLaptops} mẫu laptop đang có</p>
+                )}
+              </div>
               {activeFilterCount > 0 && (
                 <span className="rounded-full bg-primary-50 px-2.5 py-1 text-xs font-bold text-primary-700">
                   {activeFilterCount}
@@ -381,7 +377,7 @@ const LaptopListPage = () => {
 
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
               <div className="relative w-full sm:w-72">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
                 <input
                   type="text"
                   placeholder="Tìm theo tên..."
@@ -390,7 +386,7 @@ const LaptopListPage = () => {
                     setSearch(event.target.value);
                     resetPage();
                   }}
-                  className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-primary-500 focus:border-primary-500"
+                  className="w-full rounded-lg border border-gray-300 py-2 pl-9 pr-3 text-sm focus:border-primary-500 focus:ring-primary-500"
                 />
               </div>
               <button
@@ -398,34 +394,37 @@ const LaptopListPage = () => {
                 onClick={clearFilters}
                 className="inline-flex items-center justify-center gap-1 rounded-lg border border-gray-200 px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50"
               >
-                <X className="w-4 h-4" />
+                <X className="h-4 w-4" />
                 Xóa bộ lọc
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsFilterPanelOpen(prev => !prev)}
+                className="inline-flex items-center justify-center gap-1 rounded-lg bg-primary-600 px-3 py-2 text-sm font-semibold text-white hover:bg-primary-700"
+              >
+                {isFilterPanelOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                {isFilterPanelOpen ? 'Thu gọn' : 'Mở bộ lọc'}
               </button>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-x-12 gap-y-8 lg:grid-cols-3">
-            {FILTER_GROUPS.map(group => (
-              <section key={group.key} className="min-w-0">
-                <h3 className="mb-3 text-base font-bold text-gray-800">{group.title}</h3>
-                <div className="flex flex-wrap gap-2">
-                  {normalizeOptions(filterOptions[group.key], group.key).map(item => renderChip(group, item))}
-                </div>
-              </section>
-            ))}
-          </div>
+          {isFilterPanelOpen && (
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3">
+              {FILTER_GROUPS.map(group => renderFilterGroup(group))}
+            </div>
+          )}
         </div>
 
         {loading ? (
           <div className="py-20 text-center"><Loading /></div>
         ) : laptops.length === 0 ? (
-          <div className="text-center py-20">
-            <p className="text-gray-500 text-lg">Không tìm thấy laptop phù hợp với bộ lọc.</p>
-            <button type="button" onClick={clearFilters} className="mt-4 btn btn-outline">Xóa bộ lọc</button>
+          <div className="py-20 text-center">
+            <p className="text-lg text-gray-500">Không tìm thấy laptop phù hợp với bộ lọc.</p>
+            <button type="button" onClick={clearFilters} className="btn btn-outline mt-4">Xóa bộ lọc</button>
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {laptops.map(laptop => (
                 <LaptopCard
                   key={laptop.id}
@@ -438,14 +437,14 @@ const LaptopListPage = () => {
             </div>
 
             {pagination.totalPages > 1 && (
-              <div className="mt-8 flex justify-center items-center gap-4">
+              <div className="mt-8 flex items-center justify-center gap-4">
                 <button
                   type="button"
                   onClick={() => setPagination(prev => ({ ...prev, page: Math.max(1, prev.page - 1) }))}
                   disabled={pagination.page === 1}
-                  className="p-2 border border-gray-300 rounded hover:bg-gray-100 disabled:opacity-50"
+                  className="rounded border border-gray-300 p-2 hover:bg-gray-100 disabled:opacity-50"
                 >
-                  <ChevronLeft className="w-5 h-5" />
+                  <ChevronLeft className="h-5 w-5" />
                 </button>
                 <span className="text-gray-700">
                   Trang {pagination.page} / {pagination.totalPages}
@@ -454,9 +453,9 @@ const LaptopListPage = () => {
                   type="button"
                   onClick={() => setPagination(prev => ({ ...prev, page: Math.min(prev.totalPages, prev.page + 1) }))}
                   disabled={pagination.page === pagination.totalPages}
-                  className="p-2 border border-gray-300 rounded hover:bg-gray-100 disabled:opacity-50"
+                  className="rounded border border-gray-300 p-2 hover:bg-gray-100 disabled:opacity-50"
                 >
-                  <ChevronRight className="w-5 h-5" />
+                  <ChevronRight className="h-5 w-5" />
                 </button>
               </div>
             )}

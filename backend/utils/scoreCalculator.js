@@ -1,3 +1,5 @@
+const { parseBudgetRange } = require('./budget');
+
 const GROUP_TAGS = {
   it_student: ["coding", "ram_16gb", "ssd_512gb", "cpu_good", "cpu_strong", "upgradeable", "student_friendly"],
   finance_student: ["office", "excel", "lightweight", "battery_good", "webcam_good", "value_for_money", "student_friendly"],
@@ -28,12 +30,9 @@ function calculateScore(laptop, commonAnswers, specificAnswers = {}) {
   N = Math.min(10, tagMatch);
 
   // 2. Ngân sách
-  let targetMin = 0, targetMax = 999;
-  if (budget === 'under-10') { targetMax = 10; }
-  else if (budget === '10-15') { targetMin = 10; targetMax = 15; }
-  else if (budget === '15-20') { targetMin = 15; targetMax = 20; }
-  else if (budget === '20-30') { targetMin = 20; targetMax = 30; }
-  else if (budget === 'over-30') { targetMin = 30; }
+  const budgetRange = parseBudgetRange(budget);
+  const targetMin = budgetRange?.minMillion ?? 0;
+  const targetMax = budgetRange?.maxMillion ?? 999;
   
   const priceMil = laptop.price / 1000000;
   if (priceMil >= targetMin && priceMil <= targetMax) G = 10;

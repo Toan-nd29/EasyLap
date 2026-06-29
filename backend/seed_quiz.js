@@ -31,7 +31,8 @@ const commonQuestions = [
       { "label": "Dưới 10 triệu", "value": "under-10" },
       { "label": "10–15 triệu", "value": "10-15" },
       { "label": "15–20 triệu", "value": "15-20" },
-      { "label": "20–30 triệu", "value": "20-30" },
+      { "label": "20–25 triệu", "value": "20-25" },
+      { "label": "25–30 triệu", "value": "25-30" },
       { "label": "Trên 30 triệu", "value": "over-30" }
     ],
     "display_order": 2

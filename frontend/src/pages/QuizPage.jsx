@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import quizApi from '../api/quizApi';
 import recommendationApi from '../api/recommendationApi';
@@ -8,6 +8,19 @@ import Loading from '../components/Loading';
 import ErrorMessage from '../components/ErrorMessage';
 import Button from '../components/Button';
 import { ArrowLeft } from 'lucide-react';
+
+const COMMON_ANSWER_KEYS = {
+  userGroup: ['common_user_group', 'userGroup'],
+  budget: ['common_budget', 'budget'],
+  mobility: ['common_mobility', 'mobility'],
+  usageYears: ['common_usage_years', 'usageYears', 'lifespan'],
+  priorities: ['common_priorities', 'priorities']
+};
+
+const getAnswerByKeys = (answers, keys, fallback = '') => {
+  const matchedKey = keys.find(key => answers[key] !== undefined);
+  return matchedKey ? answers[matchedKey] : fallback;
+};
 
 const QuizPage = () => {
   const navigate = useNavigate();
@@ -22,11 +35,7 @@ const QuizPage = () => {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    fetchCommonQuestions();
-  }, []);
-
-  const fetchCommonQuestions = async () => {
+  async function fetchCommonQuestions() {
     try {
       const res = await quizApi.getCommonQuestions();
       if (res.success) {
@@ -39,7 +48,12 @@ const QuizPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchCommonQuestions();
+  }, []);
 
   const fetchSpecificQuestions = async (group) => {
     try {
@@ -72,7 +86,7 @@ const QuizPage = () => {
     } else {
       setAnswers({ ...answers, [qKey]: value });
       
-      if (qKey === 'common_user_group' && value !== userGroup) {
+      if (COMMON_ANSWER_KEYS.userGroup.includes(qKey) && value !== userGroup) {
         setUserGroup(value);
         fetchSpecificQuestions(value);
       }
@@ -102,16 +116,14 @@ const QuizPage = () => {
       
       // Build commonAnswers object mapping properly
       const mappedCommonAnswers = {
-        userGroup: answers['common_user_group'] || '',
-        budget: answers['common_budget'] || '',
-        mobility: answers['common_mobility'] || '',
-        usageYears: answers['common_usage_years'] || '',
-        priorities: answers['common_priorities'] || []
+        userGroup: getAnswerByKeys(answers, COMMON_ANSWER_KEYS.userGroup),
+        budget: getAnswerByKeys(answers, COMMON_ANSWER_KEYS.budget),
+        mobility: getAnswerByKeys(answers, COMMON_ANSWER_KEYS.mobility),
+        usageYears: getAnswerByKeys(answers, COMMON_ANSWER_KEYS.usageYears),
+        priorities: getAnswerByKeys(answers, COMMON_ANSWER_KEYS.priorities, [])
       };
       
-      const commonKeysSet = new Set([
-        'common_user_group', 'common_budget', 'common_mobility', 'common_usage_years', 'common_priorities'
-      ]);
+      const commonKeysSet = new Set(Object.values(COMMON_ANSWER_KEYS).flat());
 
       Object.keys(answers).forEach(key => {
         if (!commonKeysSet.has(key)) {
@@ -126,7 +138,9 @@ const QuizPage = () => {
       
       const res = await recommendationApi.getRecommendation(payload);
       if (res.success) {
-        const { success, message, ...resultData } = res;
+        const resultData = { ...res };
+        delete resultData.success;
+        delete resultData.message;
         sessionStorage.setItem('quizResult', JSON.stringify(resultData));
         navigate('/result');
       } else {

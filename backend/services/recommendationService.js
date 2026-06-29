@@ -2,16 +2,25 @@ const { supabaseAdmin } = require('../config/supabaseClient');
 const { calculateScore } = require('../utils/scoreCalculator');
 const { generateMatchReasons, generateTradeOffs } = require('../utils/generateReasons');
 const { generateRecommendedConfig, generateSummary } = require('../utils/generateConfig');
+const { parseBudgetRange } = require('../utils/budget');
 
 class RecommendationService {
   async processRecommendation(userId, data) {
     const { commonAnswers, specificAnswers } = data;
-    const { userGroup, budget, priorities } = commonAnswers;
+    const { userGroup, budget } = commonAnswers;
 
     // 1. Lấy tất cả laptop active
-    const { data: laptops, error: laptopError } = await supabaseAdmin
-      .from('laptops')
-      .select('*');
+    const budgetRange = parseBudgetRange(budget);
+    let laptopQuery = supabaseAdmin.from('laptops').select('*');
+
+    if (budgetRange) {
+      laptopQuery = laptopQuery.gte('price', budgetRange.minVnd);
+      if (budgetRange.maxVnd !== null) {
+        laptopQuery = laptopQuery.lte('price', budgetRange.maxVnd);
+      }
+    }
+
+    const { data: laptops, error: laptopError } = await laptopQuery;
 
     if (laptopError) throw laptopError;
 
@@ -75,11 +84,13 @@ class RecommendationService {
       };
     });
 
-    const { error: recsError } = await supabaseAdmin
-      .from('recommendations')
-      .insert(recommendationsData);
+    if (recommendationsData.length > 0) {
+      const { error: recsError } = await supabaseAdmin
+        .from('recommendations')
+        .insert(recommendationsData);
 
-    if (recsError) throw recsError;
+      if (recsError) throw recsError;
+    }
 
     return {
       quizAttemptId: attempt.id,

@@ -74,7 +74,8 @@ const COMMON_QUESTIONS = [
             { value: 10,  label: 'Dưới 10 triệu' },
             { value: 15,  label: '10–15 triệu' },
             { value: 20,  label: '15–20 triệu' },
-            { value: 30,  label: '20–30 triệu' },
+            { value: 25,  label: '20–25 triệu' },
+            { value: 30,  label: '25–30 triệu' },
             { value: 100, label: 'Trên 30 triệu' }
         ]
     },
@@ -114,6 +115,32 @@ const COMMON_QUESTIONS = [
         ]
     }
 ];
+
+function getBudgetRange(value) {
+    const key = String(value || '').trim();
+    const ranges = {
+        '10': { min: 0, max: 10000000 },
+        '15': { min: 10000000, max: 15000000 },
+        '20': { min: 15000000, max: 20000000 },
+        '25': { min: 20000000, max: 25000000 },
+        '30': { min: 25000000, max: 30000000 },
+        '100': { min: 30000000, max: Infinity },
+        'under-10': { min: 0, max: 10000000 },
+        '10-15': { min: 10000000, max: 15000000 },
+        '15-20': { min: 15000000, max: 20000000 },
+        '20-25': { min: 20000000, max: 25000000 },
+        '25-30': { min: 25000000, max: 30000000 },
+        '20-30': { min: 20000000, max: 30000000 },
+        'over-30': { min: 30000000, max: Infinity }
+    };
+
+    return ranges[key] || null;
+}
+
+function isInBudget(price, range) {
+    if (!range) return true;
+    return price >= range.min && price <= range.max;
+}
 
 // ----------------------------------------------------------------
 // Group-specific question banks
@@ -855,7 +882,10 @@ const app = {
         const groupInfo = GROUP_INFO[group] || {};
         const tagWeights = groupInfo.tagWeights || {};
 
-        let results = laptops.map(laptop => {
+        const budgetRange = getBudgetRange(ac.budget);
+        const candidateLaptops = laptops.filter(laptop => isInBudget(laptop.price, budgetRange));
+
+        let results = candidateLaptops.map(laptop => {
             let nScore = 0, gScore = 0, pScore = 0, wScore = 0, dScore = 0;
 
             // ── N: Need / Use-case match (40%) ──────────────────
@@ -943,12 +973,20 @@ const app = {
             if (priorities.includes('upgrade') && laptop.upgradeable) nScore += 8;
 
             // ── G: Budget match (25%) ────────────────────────────
-            const budgetMax = parseFloat(ac.budget) * 1000000;
-            if (laptop.price <= budgetMax) {
-                gScore = 100 - ((budgetMax - laptop.price) / budgetMax * 15);
+            if (budgetRange) {
+                const budgetMax = budgetRange.max === Infinity ? laptop.price : budgetRange.max;
+                const budgetMin = budgetRange.min;
+                const budgetMid = (budgetMin + budgetMax) / 2;
+                const budgetSpan = Math.max(budgetMax - budgetMin, 1);
+                gScore = 100 - (Math.abs(laptop.price - budgetMid) / budgetSpan * 15);
             } else {
-                const over = (laptop.price - budgetMax) / budgetMax;
-                gScore = Math.max(0, 100 - over * 100);
+                const budgetMax = parseFloat(ac.budget) * 1000000;
+                if (laptop.price <= budgetMax) {
+                    gScore = 100 - ((budgetMax - laptop.price) / budgetMax * 15);
+                } else {
+                    const over = (laptop.price - budgetMax) / budgetMax;
+                    gScore = Math.max(0, 100 - over * 100);
+                }
             }
 
             // ── P: Performance (15%) ─────────────────────────────

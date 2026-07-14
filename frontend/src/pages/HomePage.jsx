@@ -1,144 +1,129 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
+import { BarChart3, ChevronRight, CircleHelp, Laptop, SearchCheck, SlidersHorizontal, Sparkles, Target } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { CheckCircle2, ChevronRight, HelpCircle, Target, Zap } from 'lucide-react';
-import Button from '../components/Button';
+
+const steps = [
+  {
+    icon: CircleHelp,
+    title: 'Trả lời quiz',
+    description: 'Cung cấp thông tin về ngân sách và mục đích sử dụng chính của bạn.'
+  },
+  {
+    icon: BarChart3,
+    title: 'Phân tích',
+    description: 'Thuật toán đối chiếu hàng ngàn mẫu máy để tìm ra cấu hình phù hợp.'
+  },
+  {
+    icon: Laptop,
+    title: 'Nhận gợi ý',
+    description: 'Xem danh sách laptop tốt nhất, kèm tỷ lệ phù hợp với nhu cầu.'
+  }
+];
 
 const HomePage = () => {
   const { isAuthenticated } = useAuth();
+  const startPath = isAuthenticated ? '/quiz' : '/login';
 
   return (
-    <div className="bg-white">
-      {/* Hero Section */}
-      <section className="relative overflow-hidden bg-primary-50 py-16 sm:py-24 lg:py-32">
-        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-primary-50 to-white"></div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-gray-900 tracking-tight mb-8">
-            <span className="block">Không rành laptop</span>
-            <span className="block text-primary-600">Vẫn chọn được máy phù hợp</span>
-          </h1>
-          <p className="mt-4 max-w-2xl mx-auto text-xl text-gray-600 mb-10">
-            Trả lời vài câu hỏi đơn giản, EasyLap sẽ gợi ý cấu hình và mẫu laptop phù hợp với nhu cầu, ngân sách và thói quen sử dụng của bạn.
-          </p>
-          <div className="flex justify-center gap-4">
-            {isAuthenticated ? (
-              <Link to="/quiz" className="btn btn-primary text-lg px-8 py-3">
-                Bắt đầu chọn laptop <ChevronRight className="ml-2 w-5 h-5" />
+    <div className="overflow-hidden bg-white">
+      <section className="relative">
+        <div className="pointer-events-none absolute right-0 top-0 h-[430px] w-[48%] bg-gradient-to-bl from-primary-50 via-primary-50/60 to-transparent" />
+        <div className="relative mx-auto grid max-w-[1440px] items-center gap-12 px-6 py-16 sm:px-8 md:py-24 lg:grid-cols-[0.92fr_1.08fr] xl:px-12 xl:py-28">
+          <div className="max-w-2xl">
+            <span className="inline-flex items-center gap-2 rounded-full bg-primary-50 px-3 py-1.5 text-xs font-extrabold uppercase tracking-[0.12em] text-primary-700">
+              <Sparkles className="h-3.5 w-3.5" /> Chọn laptop dễ hơn
+            </span>
+            <h1 className="mt-6 text-[2.65rem] font-black leading-[1.07] tracking-[-0.045em] text-[#0c110e] sm:text-5xl lg:text-[3.75rem]">
+              Không rành laptop vẫn chọn được máy phù hợp
+            </h1>
+            <p className="mt-6 max-w-xl text-base leading-7 text-[#56635b] sm:text-lg">
+              Khám phá chiếc laptop lý tưởng dành riêng cho bạn thông qua bài kiểm tra nhu cầu đơn giản. Không cần hiểu thông số kỹ thuật phức tạp.
+            </p>
+            <div className="mt-8 flex flex-wrap items-center gap-4">
+              <Link to={startPath} className="btn btn-primary px-7">
+                Bắt đầu chọn laptop <ChevronRight className="ml-1 h-4 w-4" />
               </Link>
-            ) : (
-              <Link to="/login" className="btn btn-primary text-lg px-8 py-3">
-                Đăng nhập để bắt đầu
-              </Link>
-            )}
+              {isAuthenticated && (
+                <Link to="/laptops" className="btn btn-outline px-7">Xem tất cả laptop</Link>
+              )}
+            </div>
           </div>
-        </div>
-      </section>
 
-      {/* Vấn đề người dùng gặp phải */}
-      <section className="py-16 sm:py-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Mua laptop lần đầu? Thật đau đầu!</h2>
-            <p className="text-lg text-gray-600">Đừng lo, bạn không đơn độc. Đa số mọi người đều gặp phải các vấn đề sau:</p>
-          </div>
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="card text-center">
-              <div className="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                <HelpCircle className="w-8 h-8" />
+          <div className="relative mx-auto w-full max-w-[650px] py-10 lg:py-14">
+            <div className="absolute inset-[2%_2%_0_8%] -rotate-[8deg] bg-[#d8f8e7] [clip-path:polygon(9%_0,100%_24%,91%_100%,0_75%)]" />
+            <div className="relative mx-auto w-[82%] rounded-[28px] border border-[#dce6e0] bg-white p-3 shadow-[0_24px_70px_rgba(20,50,34,0.18)] sm:p-4">
+              <div className="overflow-hidden rounded-[20px] bg-[#eff4f1] p-5 sm:p-8">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full bg-primary-500" /><span className="text-xs font-extrabold text-[#293b31]">EasyLap</span></div>
+                  <div className="flex gap-1.5"><span className="h-2 w-2 rounded-full bg-[#cad5ce]" /><span className="h-2 w-2 rounded-full bg-[#cad5ce]" /><span className="h-2 w-2 rounded-full bg-[#cad5ce]" /></div>
+                </div>
+                <div className="mt-5 grid grid-cols-[0.8fr_1.2fr] gap-4 sm:gap-6">
+                  <div>
+                    <div className="h-3 w-2/3 rounded-full bg-[#cfd9d3]" />
+                    <div className="mt-3 h-6 w-full rounded-md bg-[#1d2b23]" />
+                    <div className="mt-2 h-2 w-5/6 rounded-full bg-[#cfd9d3]" />
+                    <div className="mt-1.5 h-2 w-2/3 rounded-full bg-[#dce4df]" />
+                    <div className="mt-5 inline-flex rounded-full bg-primary-500 px-4 py-2 text-[9px] font-bold text-white">Bắt đầu quiz</div>
+                  </div>
+                  <div className="rounded-xl border border-[#e1e8e4] bg-white p-3 shadow-sm">
+                    <div className="flex h-24 items-end justify-center gap-2 sm:h-32">
+                      {[38, 58, 46, 82, 66, 92].map((height, index) => <span key={height} className={`w-3 rounded-t-sm ${index === 5 ? 'bg-primary-500' : 'bg-primary-100'}`} style={{ height: `${height}%` }} />)}
+                    </div>
+                    <div className="mt-2 h-1.5 w-full rounded-full bg-[#edf1ef]" />
+                  </div>
+                </div>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">Rối rắm thông số kỹ thuật</h3>
-              <p className="text-gray-600">Không hiểu CPU, RAM, SSD, GPU khác nhau chỗ nào và mình cần bao nhiêu là đủ.</p>
-            </div>
-            <div className="card text-center">
-              <div className="w-16 h-16 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Target className="w-8 h-8" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">Mua sai nhu cầu</h3>
-              <p className="text-gray-600">Dễ mua phải máy quá yếu không dùng được việc, hoặc máy quá mạnh dẫn đến lãng phí tiền bạc.</p>
-            </div>
-            <div className="card text-center">
-              <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Zap className="w-8 h-8" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">Quá nhiều lựa chọn</h3>
-              <p className="text-gray-600">Hàng trăm mẫu mã từ Dell, Asus, HP, Lenovo, Apple... khiến bạn không biết nên mua hãng nào.</p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Cách hoạt động */}
-      <section className="py-16 sm:py-24 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Cách EasyLap giúp bạn</h2>
-            <p className="text-lg text-gray-600">Giải quyết bài toán khó chỉ trong 3 bước đơn giản</p>
-          </div>
-          
-          <div className="grid md:grid-cols-3 gap-8 relative">
-            {/* Connecting lines for desktop */}
-            <div className="hidden md:block absolute top-1/2 left-[16%] right-[16%] h-1 bg-gray-200 -z-0"></div>
-            
-            <div className="relative z-10 flex flex-col items-center">
-              <div className="w-16 h-16 bg-primary-600 text-white rounded-full flex items-center justify-center text-2xl font-bold mb-6 shadow-lg border-4 border-white">1</div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">Trả lời câu hỏi (Quiz)</h3>
-              <p className="text-gray-600 text-center">Thực hiện bài trắc nghiệm ngắn về nhóm ngành nghề, ngân sách và nhu cầu sử dụng của bạn.</p>
+      <section className="mx-auto max-w-[1440px] px-6 pb-20 sm:px-8 xl:px-12">
+        <div className="relative overflow-hidden rounded-[30px] bg-[#f0f4f0] px-6 py-12 sm:px-10 lg:px-16">
+          <span className="absolute left-0 top-0 h-16 w-16 bg-[#dcece2]" />
+          <span className="absolute bottom-0 right-0 h-20 w-24 bg-[#d4f2f3]" />
+          <h2 className="relative text-center text-2xl font-black tracking-[-0.03em] text-[#101713]">Mua laptop thường gặp khó khăn gì?</h2>
+          <div className="relative mx-auto mt-9 grid max-w-4xl gap-5 md:grid-cols-2">
+            <div className="rounded-[24px] border border-[#e4e9e6] bg-white p-8 text-center shadow-sm">
+              <span className="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-full bg-[#ffe1df] text-[#d84e43]"><SlidersHorizontal className="h-5 w-5" /></span>
+              <h3 className="mt-5 text-lg font-extrabold text-[#121814]">Rối rắm thông số</h3>
+              <p className="mx-auto mt-3 max-w-sm text-sm leading-6 text-[#66736b]">Hàng tá chỉ số CPU, RAM, GPU khó hiểu khiến bạn không biết nên bắt đầu từ đâu.</p>
             </div>
-            <div className="relative z-10 flex flex-col items-center">
-              <div className="w-16 h-16 bg-primary-600 text-white rounded-full flex items-center justify-center text-2xl font-bold mb-6 shadow-lg border-4 border-white">2</div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">Hệ thống phân tích</h3>
-              <p className="text-gray-600 text-center">Thuật toán EasyLap sẽ dịch các nhu cầu của bạn thành thông số cấu hình kỹ thuật cụ thể.</p>
-            </div>
-            <div className="relative z-10 flex flex-col items-center">
-              <div className="w-16 h-16 bg-primary-600 text-white rounded-full flex items-center justify-center text-2xl font-bold mb-6 shadow-lg border-4 border-white">3</div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">Nhận gợi ý chính xác</h3>
-              <p className="text-gray-600 text-center">Gợi ý top 3-5 mẫu laptop phù hợp nhất, kèm theo lý do chọn và những điểm bạn cần đánh đổi.</p>
+            <div className="rounded-[24px] border border-[#e4e9e6] bg-white p-8 text-center shadow-sm">
+              <span className="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-full bg-[#fff0ca] text-[#c98205]"><Target className="h-5 w-5" /></span>
+              <h3 className="mt-5 text-lg font-extrabold text-[#121814]">Mua sai nhu cầu</h3>
+              <p className="mx-auto mt-3 max-w-sm text-sm leading-6 text-[#66736b]">Lãng phí tiền cho những tính năng không dùng tới hoặc máy quá yếu để làm việc.</p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Lợi ích */}
-      <section className="py-16 sm:py-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-primary-600 rounded-3xl p-8 sm:p-16 text-white text-center">
-            <h2 className="text-3xl font-bold mb-10">Lợi ích khi sử dụng EasyLap</h2>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 text-left">
-              <div className="flex items-start">
-                <CheckCircle2 className="w-6 h-6 mr-3 text-primary-200 flex-shrink-0 mt-1" />
-                <div>
-                  <h4 className="font-bold mb-1">Tiết kiệm thời gian</h4>
-                  <p className="text-primary-100 text-sm">Không cần tốn hàng giờ đọc review và so sánh.</p>
+      <section className="border-t border-[#eff3f0] bg-[#fbfdfc] py-20 sm:py-24">
+        <div className="mx-auto max-w-[1440px] px-6 text-center sm:px-8 xl:px-12">
+          <span className="text-xs font-extrabold uppercase tracking-[0.15em] text-primary-600">Quy trình đơn giản</span>
+          <h2 className="mt-3 text-3xl font-black tracking-[-0.035em] text-[#101713]">Giải pháp từ EasyLap</h2>
+          <p className="mt-3 text-sm text-[#66736b]">Chỉ với 3 bước đơn giản, hệ thống sẽ phân tích và đưa ra lựa chọn tối ưu nhất cho bạn.</p>
+
+          <div className="relative mt-14 grid gap-10 md:grid-cols-3 md:gap-7">
+            <div className="absolute left-[16.5%] right-[16.5%] top-7 hidden h-px bg-primary-200 md:block" />
+            {steps.map((step, index) => {
+              const Icon = step.icon;
+              return (
+                <div key={step.title} className="relative">
+                  <div className="relative mx-auto flex h-14 w-14 items-center justify-center rounded-full border-2 border-primary-200 bg-white text-primary-500">
+                    <Icon className="h-5 w-5" />
+                    <span className="absolute -right-1 -top-1 flex h-6 w-6 items-center justify-center rounded-full border-2 border-white bg-primary-500 text-[11px] font-black text-white">{index + 1}</span>
+                  </div>
+                  <h3 className="mt-5 text-lg font-extrabold text-[#101713]">{step.title}</h3>
+                  <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-[#66736b]">{step.description}</p>
                 </div>
-              </div>
-              <div className="flex items-start">
-                <CheckCircle2 className="w-6 h-6 mr-3 text-primary-200 flex-shrink-0 mt-1" />
-                <div>
-                  <h4 className="font-bold mb-1">Chọn đúng nhu cầu</h4>
-                  <p className="text-primary-100 text-sm">Đảm bảo máy đáp ứng vừa đủ hoặc dư sức cho công việc của bạn.</p>
-                </div>
-              </div>
-              <div className="flex items-start">
-                <CheckCircle2 className="w-6 h-6 mr-3 text-primary-200 flex-shrink-0 mt-1" />
-                <div>
-                  <h4 className="font-bold mb-1">Hiểu rõ lý do chọn</h4>
-                  <p className="text-primary-100 text-sm">Giải thích bằng ngôn ngữ dễ hiểu tại sao máy này hợp với bạn.</p>
-                </div>
-              </div>
-              <div className="flex items-start">
-                <CheckCircle2 className="w-6 h-6 mr-3 text-primary-200 flex-shrink-0 mt-1" />
-                <div>
-                  <h4 className="font-bold mb-1">Tránh cạm bẫy quảng cáo</h4>
-                  <p className="text-primary-100 text-sm">Cảnh báo rõ các điểm yếu/đánh đổi của từng máy.</p>
-                </div>
-              </div>
-            </div>
-            <div className="mt-12">
-              <Link to={isAuthenticated ? "/quiz" : "/login"} className="btn bg-white text-primary-600 hover:bg-gray-50 text-lg px-8 py-3">
-                Khám phá ngay
-              </Link>
-            </div>
+              );
+            })}
           </div>
+
+          <Link to={startPath} className="btn btn-primary mt-14 px-8">
+            <SearchCheck className="mr-2 h-4 w-4" /> Tìm laptop phù hợp ngay
+          </Link>
         </div>
       </section>
     </div>

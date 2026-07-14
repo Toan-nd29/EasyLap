@@ -1,28 +1,24 @@
-import React from 'react';
-import { Laptop, Heart } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import BrandLogo from './BrandLogo';
 
-const Footer = () => {
-  return (
-    <footer className="bg-white border-t border-gray-100 mt-auto">
-      <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-        <div className="md:flex md:items-center md:justify-between">
-          <div className="flex justify-center md:justify-start mb-6 md:mb-0">
-            <div className="flex items-center gap-2">
-              <Laptop className="h-6 w-6 text-primary-600" />
-              <span className="font-bold text-lg text-gray-900">EasyLap</span>
-            </div>
-          </div>
-          
-          <div className="mt-8 md:mt-0 md:order-1">
-            <p className="text-center text-sm text-gray-500 flex items-center justify-center gap-1">
-              &copy; {new Date().getFullYear()} EasyLap. Chúc bạn tìm được chiếc laptop ưng ý! 
-              <Heart className="w-4 h-4 text-red-500 fill-current" />
-            </p>
-          </div>
-        </div>
+const Footer = () => (
+  <footer className="mt-auto border-t border-[#e1e7e3] bg-[#edf0ed]">
+    <div className="mx-auto grid max-w-[1440px] gap-10 px-6 py-12 sm:px-8 md:grid-cols-[1.35fr_1fr_1fr] xl:px-12">
+      <div>
+        <BrandLogo compact />
+        <p className="mt-4 max-w-sm text-sm leading-6 text-[#66736b]">Công cụ tư vấn laptop dễ hiểu, giúp bạn chọn đúng máy theo nhu cầu và ngân sách.</p>
+        <p className="mt-5 text-xs text-[#7b877f]">© {new Date().getFullYear()} EasyLap. Tất cả quyền được bảo lưu.</p>
       </div>
-    </footer>
-  );
-};
+      <div>
+        <h3 className="text-sm font-extrabold text-[#26372d]">Liên kết</h3>
+        <div className="mt-4 grid gap-3 text-sm text-[#66736b]"><Link to="/" className="hover:text-primary-700">Trang chủ</Link><Link to="/laptops" className="hover:text-primary-700">Danh sách laptop</Link><Link to="/quiz" className="hover:text-primary-700">Quiz tư vấn</Link></div>
+      </div>
+      <div>
+        <h3 className="text-sm font-extrabold text-[#26372d]">Điều khoản</h3>
+        <div className="mt-4 grid gap-3 text-sm text-[#66736b]"><span>Chính sách bảo mật</span><span>Điều khoản sử dụng</span><Link to="/profile" className="hover:text-primary-700">Hỗ trợ tài khoản</Link></div>
+      </div>
+    </div>
+  </footer>
+);
 
 export default Footer;

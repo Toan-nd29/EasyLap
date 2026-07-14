@@ -1,7 +1,6 @@
-import React from 'react';
 import { Outlet, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Laptop } from 'lucide-react';
+import BrandLogo from '../components/BrandLogo';
 
 const AuthLayout = () => {
   const { isAuthenticated } = useAuth();
@@ -12,19 +11,18 @@ const AuthLayout = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="relative flex min-h-screen flex-col justify-center overflow-hidden bg-[#f7faf8] px-4 py-12 sm:px-6 lg:px-8">
+      <div className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full bg-primary-100/70 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-32 -left-24 h-96 w-96 rounded-full bg-cyan-100/60 blur-3xl" />
       <div className="sm:mx-auto sm:w-full sm:max-w-md flex flex-col items-center">
-        <div className="flex items-center gap-2 mb-2">
-          <Laptop className="h-10 w-10 text-primary-600" />
-          <span className="text-3xl font-bold text-gray-900 tracking-tight">EasyLap</span>
-        </div>
-        <h2 className="mt-2 text-center text-sm text-gray-600">
+        <BrandLogo />
+        <h2 className="mt-3 text-center text-sm text-[#66736b]">
           Chọn đúng, mua chuẩn - Tìm laptop hoàn hảo cho bạn
         </h2>
       </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10 border border-gray-100">
+      <div className="relative mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="border border-[#e5ebe7] bg-white px-5 py-8 shadow-[0_18px_50px_rgba(32,55,43,0.08)] sm:rounded-[24px] sm:px-10">
           <Outlet />
         </div>
       </div>

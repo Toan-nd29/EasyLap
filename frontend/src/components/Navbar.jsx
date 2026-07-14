@@ -1,115 +1,116 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { LogIn, LogOut, Menu, Search, Settings, UserRound, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { Laptop, Menu, X, User, LogOut, Settings } from 'lucide-react';
 import { ROLES } from '../utils/constants';
+import BrandLogo from './BrandLogo';
+
+const NAV_ITEMS = [
+  { to: '/', label: 'Trang chủ', end: true },
+  { to: '/quiz', label: 'Quiz', protected: true },
+  { to: '/laptops', label: 'Laptop', protected: true },
+  { to: '/compare', label: 'So sánh', protected: true }
+];
 
 const Navbar = () => {
   const { isAuthenticated, user, logout } = useAuth();
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [search, setSearch] = useState('');
 
   const handleLogout = async () => {
     await logout();
     navigate('/login');
   };
 
-  const NavLinks = () => (
-    <>
-      <Link to="/" className="text-gray-600 hover:text-primary-600 px-3 py-2 rounded-md font-medium">Trang chủ</Link>
-      {isAuthenticated && (
-        <>
-          <Link to="/quiz" className="text-gray-600 hover:text-primary-600 px-3 py-2 rounded-md font-medium">Làm Quiz</Link>
-          <Link to="/laptops" className="text-gray-600 hover:text-primary-600 px-3 py-2 rounded-md font-medium">Laptop</Link>
-          <Link to="/compare" className="text-gray-600 hover:text-primary-600 px-3 py-2 rounded-md font-medium">So sánh</Link>
-        </>
-      )}
-    </>
-  );
+  const handleSearch = (event) => {
+    event.preventDefault();
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
+    const query = search.trim();
+    navigate(query ? `/laptops?search=${encodeURIComponent(query)}` : '/laptops');
+  };
+
+  const visibleNavItems = NAV_ITEMS.filter(item => !item.protected || isAuthenticated);
 
   return (
-    <nav className="bg-white border-b border-gray-100 sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
-          <div className="flex">
-            <Link to="/" className="flex-shrink-0 flex items-center gap-2">
-              <Laptop className="h-8 w-8 text-primary-600" />
-              <span className="font-bold text-xl tracking-tight text-gray-900">EasyLap</span>
-            </Link>
-            <div className="hidden md:ml-6 md:flex md:items-center md:space-x-2">
-              <NavLinks />
-            </div>
-          </div>
-          
-          <div className="hidden md:flex items-center space-x-4">
-            {isAuthenticated ? (
-              <div className="flex items-center gap-4">
-                {user?.role === ROLES.ADMIN && (
-                  <Link to="/admin" className="text-sm font-medium text-purple-600 hover:text-purple-800 flex items-center gap-1">
-                    <Settings className="w-4 h-4" /> Admin
-                  </Link>
-                )}
-                <Link to="/profile" className="flex items-center gap-1 text-gray-600 hover:text-primary-600">
-                  <User className="w-5 h-5" />
-                  <span className="text-sm font-medium">{user?.full_name || 'Tài khoản'}</span>
-                </Link>
-                <button onClick={handleLogout} className="btn btn-outline text-sm py-1.5 flex items-center gap-1">
-                  <LogOut className="w-4 h-4" /> Đăng xuất
-                </button>
-              </div>
-            ) : (
-              <>
-                <Link to="/login" className="text-gray-600 hover:text-primary-600 font-medium px-3 py-2">Đăng nhập</Link>
-                <Link to="/register" className="btn btn-primary text-sm py-2">Đăng ký</Link>
-              </>
-            )}
-          </div>
+    <header className="sticky top-0 z-50 border-b border-[#e7ece9] bg-white/95 backdrop-blur">
+      <div className="mx-auto flex h-[72px] max-w-[1440px] items-center gap-6 px-5 sm:px-8 xl:px-12">
+        <Link to="/" aria-label="EasyLap - Trang chủ" className="shrink-0">
+          <BrandLogo compact />
+        </Link>
 
-          <div className="flex items-center md:hidden">
-            <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none"
+        <nav className="hidden flex-1 items-center justify-center gap-1 lg:flex">
+          {visibleNavItems.map(item => (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              end={item.end}
+              className={({ isActive }) => `relative px-4 py-6 text-sm font-semibold transition-colors ${
+                isActive ? 'text-primary-600' : 'text-[#536159] hover:text-[#101713]'
+              }`}
             >
-              {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-            </button>
-          </div>
+              {({ isActive }) => (
+                <>
+                  {item.label}
+                  {isActive && <span className="absolute inset-x-4 bottom-[17px] h-0.5 rounded-full bg-primary-500" />}
+                </>
+              )}
+            </NavLink>
+          ))}
+        </nav>
+
+        <div className="ml-auto hidden items-center gap-3 md:flex">
+          <form onSubmit={handleSearch} className="relative hidden xl:block">
+            <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#98a49c]" />
+            <input value={search} onChange={event => setSearch(event.target.value)} placeholder="Tìm kiếm laptop..." aria-label="Tìm kiếm laptop" className="h-10 w-64 rounded-xl border border-[#e2e9e5] bg-[#f6f8f7] pl-10 pr-4 text-sm text-[#26372d] outline-none transition focus:border-primary-300 focus:bg-white" />
+          </form>
+
+          {isAuthenticated ? (
+            <>
+              {user?.role === ROLES.ADMIN && (
+                <Link to="/admin" className="inline-flex h-10 items-center gap-2 rounded-full px-3 text-sm font-semibold text-[#536159] hover:bg-[#f3f6f4]"><Settings className="h-4 w-4" /> Admin</Link>
+              )}
+              <Link to="/profile" className="inline-flex h-10 items-center gap-2 rounded-full border border-[#cfd9d3] bg-white px-4 text-sm font-bold text-[#34463b] transition hover:border-primary-300 hover:text-primary-700"><UserRound className="h-4 w-4" /> Hồ sơ</Link>
+              <button onClick={handleLogout} className="inline-flex h-10 items-center gap-2 rounded-full px-3 text-sm font-semibold text-[#536159] transition hover:bg-[#f3f6f4] hover:text-[#101713]"><LogOut className="h-4 w-4" /> Đăng xuất</button>
+            </>
+          ) : (
+            <>
+              <Link to="/login" className="inline-flex h-10 items-center gap-2 px-2 text-sm font-semibold text-[#536159] hover:text-primary-700"><LogIn className="h-4 w-4" /> Đăng nhập</Link>
+              <Link to="/register" className="btn btn-primary min-h-10 px-5 text-sm">Đăng ký</Link>
+            </>
+          )}
         </div>
+
+        <button type="button" onClick={() => setIsMobileMenuOpen(value => !value)} className="ml-auto inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#e1e8e4] text-[#34463b] md:hidden" aria-label={isMobileMenuOpen ? 'Đóng menu' : 'Mở menu'}>
+          {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+        </button>
       </div>
 
-      {/* Mobile menu */}
       {isMobileMenuOpen && (
-        <div className="md:hidden border-t border-gray-100 bg-white">
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 flex flex-col">
-            <NavLinks />
-            
+        <div className="border-t border-[#e7ece9] bg-white px-5 py-5 shadow-xl md:hidden">
+          <form onSubmit={handleSearch} className="relative mb-4">
+            <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#98a49c]" />
+            <input value={search} onChange={event => setSearch(event.target.value)} placeholder="Tìm kiếm laptop..." className="h-11 w-full rounded-xl border border-[#e2e9e5] bg-[#f6f8f7] pl-10 pr-4 text-sm outline-none" />
+          </form>
+          <nav className="grid gap-1">
+            {visibleNavItems.map(item => <NavLink key={item.to} to={item.to} end={item.end} onClick={() => setIsMobileMenuOpen(false)} className={({ isActive }) => `rounded-xl px-4 py-3 text-sm font-bold ${isActive ? 'bg-primary-50 text-primary-700' : 'text-[#536159]'}`}>{item.label}</NavLink>)}
             {isAuthenticated ? (
               <>
-                <div className="border-t border-gray-100 my-2 pt-2"></div>
-                {user?.role === ROLES.ADMIN && (
-                  <Link to="/admin" className="text-purple-600 hover:text-purple-800 px-3 py-2 rounded-md font-medium flex items-center gap-2">
-                    <Settings className="w-5 h-5" /> Admin Dashboard
-                  </Link>
-                )}
-                <Link to="/profile" className="text-gray-600 hover:text-primary-600 px-3 py-2 rounded-md font-medium flex items-center gap-2">
-                  <User className="w-5 h-5" /> Tài khoản của tôi
-                </Link>
-                <Link to="/favorites" className="text-gray-600 hover:text-primary-600 px-3 py-2 rounded-md font-medium">Laptop yêu thích</Link>
-                <Link to="/history" className="text-gray-600 hover:text-primary-600 px-3 py-2 rounded-md font-medium">Lịch sử Quiz</Link>
-                <button onClick={handleLogout} className="w-full text-left text-red-600 hover:bg-red-50 px-3 py-2 rounded-md font-medium flex items-center gap-2 mt-2">
-                  <LogOut className="w-5 h-5" /> Đăng xuất
-                </button>
+                <Link to="/profile" className="rounded-xl px-4 py-3 text-sm font-bold text-[#536159]">Hồ sơ của tôi</Link>
+                <Link to="/favorites" className="rounded-xl px-4 py-3 text-sm font-bold text-[#536159]">Laptop yêu thích</Link>
+                <Link to="/history" className="rounded-xl px-4 py-3 text-sm font-bold text-[#536159]">Lịch sử Quiz</Link>
+                <button onClick={handleLogout} className="mt-2 flex items-center gap-2 rounded-xl px-4 py-3 text-left text-sm font-bold text-red-600 hover:bg-red-50"><LogOut className="h-4 w-4" /> Đăng xuất</button>
               </>
             ) : (
-              <>
-                <div className="border-t border-gray-100 my-2 pt-2"></div>
-                <Link to="/login" className="block text-gray-600 hover:text-primary-600 px-3 py-2 rounded-md font-medium">Đăng nhập</Link>
-                <Link to="/register" className="block text-primary-600 font-medium px-3 py-2">Đăng ký tài khoản mới</Link>
-              </>
+              <div className="mt-3 grid grid-cols-2 gap-3"><Link to="/login" className="btn btn-outline text-sm">Đăng nhập</Link><Link to="/register" className="btn btn-primary text-sm">Đăng ký</Link></div>
             )}
-          </div>
+          </nav>
         </div>
       )}
-    </nav>
+    </header>
   );
 };
 

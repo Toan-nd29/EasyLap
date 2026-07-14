@@ -291,8 +291,53 @@ const LaptopListPage = () => {
     );
   };
 
+  const renderDesktopFlyout = (group, alignBottom = false) => {
+    const count = group.single ? (draftPriceRange ? 1 : 0) : draftFilters[group.key]?.length || 0;
+    return (
+      <div role="dialog" aria-label={`Bộ lọc ${group.title}`} className={`pointer-events-none invisible absolute left-full z-[90] w-[430px] -translate-x-1 pl-3 opacity-0 transition-all duration-200 ease-out group-hover:pointer-events-auto group-hover:visible group-hover:translate-x-0 group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:visible group-focus-within:translate-x-0 group-focus-within:opacity-100 ${alignBottom ? 'bottom-0' : 'top-0'}`}>
+        <div className="max-h-[60vh] overflow-y-auto overscroll-contain rounded-[20px] border border-[#dfe8e2] bg-white p-5 shadow-[0_22px_60px_rgba(26,48,36,0.18)]">
+          <div className="mb-4 flex items-start justify-between gap-4 border-b border-[#edf1ee] pb-4">
+            <div>
+              <p className="text-[11px] font-extrabold uppercase tracking-[0.12em] text-primary-600">Chọn tiêu chí</p>
+              <h3 className="mt-1 text-lg font-black tracking-[-0.025em] text-[#263a4e]">{group.title}</h3>
+            </div>
+            {count > 0 && <span className="shrink-0 rounded-full bg-primary-50 px-2.5 py-1 text-[11px] font-extrabold text-primary-700">{count} đã chọn</span>}
+          </div>
+          {renderOptions(group, true)}
+          <p className="mt-4 border-t border-[#edf1ee] pt-3 text-xs leading-5 text-[#7b8990]">Các lựa chọn sẽ được lưu tạm. Nhấn “Áp dụng bộ lọc” để xem kết quả.</p>
+        </div>
+      </div>
+    );
+  };
+
+  const renderAdvancedDesktopFlyout = () => (
+    <div role="dialog" aria-label="Bộ lọc nâng cao" className="pointer-events-none invisible absolute bottom-0 left-full z-[90] w-[min(680px,calc(100vw-360px))] -translate-x-1 pl-3 opacity-0 transition-all duration-200 ease-out group-hover:pointer-events-auto group-hover:visible group-hover:translate-x-0 group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:visible group-focus-within:translate-x-0 group-focus-within:opacity-100">
+      <div className="max-h-[78vh] overflow-y-auto overscroll-contain rounded-[22px] border border-[#dfe8e2] bg-white p-5 shadow-[0_22px_60px_rgba(26,48,36,0.2)]">
+        <div className="mb-5 flex items-start justify-between gap-4 border-b border-[#edf1ee] pb-4">
+          <div>
+            <p className="text-[11px] font-extrabold uppercase tracking-[0.12em] text-primary-600">Tùy chọn chuyên sâu</p>
+            <h3 className="mt-1 text-xl font-black tracking-[-0.025em] text-[#263a4e]">Bộ lọc nâng cao</h3>
+          </div>
+          {draftFilterCount > 0 && <span className="shrink-0 rounded-full bg-primary-50 px-3 py-1.5 text-xs font-extrabold text-primary-700">{draftFilterCount} lựa chọn</span>}
+        </div>
+        <div className="grid gap-4 xl:grid-cols-2">
+          {ADVANCED_GROUPS.map(group => {
+            const Icon = group.icon;
+            return (
+              <section key={group.key} className="rounded-2xl border border-[#e8eeea] bg-[#f8faf9] p-4">
+                <h4 className="mb-3 flex items-center gap-2 text-sm font-extrabold text-[#34463b]"><Icon className="h-4 w-4 text-primary-500" />{group.title}</h4>
+                {renderOptions(group, true)}
+              </section>
+            );
+          })}
+        </div>
+        <p className="mt-5 border-t border-[#edf1ee] pt-3 text-xs leading-5 text-[#7b8990]">Các lựa chọn sẽ được lưu tạm. Nhấn “Áp dụng bộ lọc” ở khung bên trái để cập nhật danh sách.</p>
+      </div>
+    </div>
+  );
+
   const renderFilterNavigation = (mobile = false) => (
-    <div className={mobile ? '' : 'sticky top-24'}>
+    <div className={mobile ? '' : 'sticky top-24 z-[60]'}>
       <div className={mobile ? '' : 'rounded-[24px] border border-[#e2e8e4] bg-white p-6 shadow-[0_14px_40px_rgba(32,55,43,0.07)]'}>
         {!mobile && (
           <div className="mb-6">
@@ -301,24 +346,39 @@ const LaptopListPage = () => {
           </div>
         )}
         <div className="grid gap-2">
-          {PRIMARY_GROUPS.map(group => {
+          {PRIMARY_GROUPS.map((group, groupIndex) => {
             const Icon = group.icon;
             const active = group.key === activeGroupKey;
             const count = group.single ? (draftPriceRange ? 1 : 0) : draftFilters[group.key]?.length || 0;
             return (
-              <button key={group.key} type="button" onClick={() => setActiveGroupKey(group.key)} className={`flex min-h-[58px] items-center gap-4 rounded-xl px-4 text-left text-base font-extrabold transition ${active ? 'bg-[#dcf3ea] text-[#304457]' : 'text-[#637487] hover:bg-[#f4f7f5]'}`}>
-                <Icon className={`h-5 w-5 ${active ? 'text-primary-500' : 'text-[#8190a0]'}`} />
-                <span className="flex-1">{group.title}</span>
-                {count > 0 && <span className="flex h-6 min-w-6 items-center justify-center rounded-full bg-primary-500 px-1.5 text-[11px] font-black text-white">{count}</span>}
-              </button>
+              <div key={group.key} className={mobile ? '' : 'group relative'}>
+                <button
+                  type="button"
+                  onClick={() => mobile && setActiveGroupKey(group.key)}
+                  aria-haspopup={mobile ? undefined : 'dialog'}
+                  className={`flex min-h-[58px] w-full items-center gap-4 rounded-xl px-4 text-left text-base font-extrabold outline-none transition ${mobile
+                    ? (active ? 'bg-[#dcf3ea] text-[#304457]' : 'text-[#637487] hover:bg-[#f4f7f5]')
+                    : 'text-[#637487] hover:bg-[#dcf3ea] hover:text-[#304457] focus-visible:bg-[#dcf3ea] focus-visible:text-[#304457] group-hover:bg-[#dcf3ea] group-hover:text-[#304457] group-focus-within:bg-[#dcf3ea] group-focus-within:text-[#304457]'
+                  }`}
+                >
+                  <Icon className={`h-5 w-5 ${mobile && active ? 'text-primary-500' : 'text-[#8190a0] transition group-hover:text-primary-500 group-focus-within:text-primary-500'}`} />
+                  <span className="flex-1">{group.title}</span>
+                  {count > 0 && <span className="flex h-6 min-w-6 items-center justify-center rounded-full bg-primary-500 px-1.5 text-[11px] font-black text-white">{count}</span>}
+                  {!mobile && <ChevronRight className="h-4 w-4 text-[#9aa69f] transition group-hover:translate-x-0.5 group-hover:text-primary-600 group-focus-within:translate-x-0.5 group-focus-within:text-primary-600" />}
+                </button>
+                {!mobile && renderDesktopFlyout(group, groupIndex >= 2)}
+              </div>
             );
           })}
         </div>
         {mobile && <div className="mt-5 border-t border-[#e8edea] pt-5"><h3 className="mb-3 text-base font-extrabold text-[#26372d]">{activePrimaryGroup.title}</h3>{renderOptions(activePrimaryGroup, true)}</div>}
-        <button type="button" onClick={() => setShowAdvanced(value => !value)} className="mt-4 flex w-full items-center justify-between rounded-xl border border-[#e2e8e4] px-4 py-3 text-sm font-bold text-[#5c6b62] hover:bg-[#f6f8f7]">
-          <span className="flex items-center gap-2"><SlidersHorizontal className="h-4 w-4" /> Bộ lọc nâng cao</span>
-          {showAdvanced ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-        </button>
+        <div className={mobile ? '' : 'group relative'}>
+          <button type="button" onClick={() => mobile && setShowAdvanced(value => !value)} aria-haspopup={mobile ? undefined : 'dialog'} className="mt-4 flex w-full items-center justify-between rounded-xl border border-[#e2e8e4] px-4 py-3 text-sm font-bold text-[#5c6b62] outline-none transition hover:border-primary-200 hover:bg-[#f1f8f4] focus-visible:border-primary-300 focus-visible:bg-[#f1f8f4] group-hover:border-primary-200 group-hover:bg-[#f1f8f4] group-focus-within:border-primary-300 group-focus-within:bg-[#f1f8f4]">
+            <span className="flex items-center gap-2"><SlidersHorizontal className="h-4 w-4" /> Bộ lọc nâng cao</span>
+            {mobile ? (showAdvanced ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />) : <ChevronRight className="h-4 w-4 transition group-hover:translate-x-0.5 group-focus-within:translate-x-0.5" />}
+          </button>
+          {!mobile && renderAdvancedDesktopFlyout()}
+        </div>
         {mobile && showAdvanced && <div className="mt-4 grid gap-5">{ADVANCED_GROUPS.map(group => <div key={group.key}><h4 className="mb-2 text-sm font-extrabold text-[#34463b]">{group.title}</h4>{renderOptions(group, true)}</div>)}</div>}
         <button type="button" onClick={applyFilters} className="btn btn-primary mt-6 w-full rounded-xl text-base">Áp dụng bộ lọc {draftFilterCount > 0 ? `(${draftFilterCount})` : ''}</button>
         {(draftFilterCount > 0 || search) && <button type="button" onClick={clearFilters} className="mt-3 w-full py-2 text-sm font-bold text-[#7a8780] hover:text-red-600">Xóa tất cả</button>}
@@ -365,26 +425,6 @@ const LaptopListPage = () => {
           <aside className="hidden lg:block">{renderFilterNavigation()}</aside>
 
           <main className="min-w-0">
-            <section className="mb-7 hidden rounded-[22px] border border-[#e4eae6] bg-white p-6 lg:block">
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <p className="text-xs font-extrabold uppercase tracking-[0.12em] text-primary-600">Đang chọn</p>
-                  <h2 className="mt-1 text-xl font-black tracking-[-0.025em] text-[#223229]">{activePrimaryGroup.title}</h2>
-                </div>
-                {draftFilterCount > 0 && <span className="rounded-full bg-primary-50 px-3 py-1.5 text-xs font-extrabold text-primary-700">{draftFilterCount} lựa chọn</span>}
-              </div>
-              <div className="mt-5">{renderOptions(activePrimaryGroup)}</div>
-
-              {showAdvanced && (
-                <div className="mt-7 grid gap-6 border-t border-[#e8edea] pt-6 xl:grid-cols-2">
-                  {ADVANCED_GROUPS.map(group => {
-                    const Icon = group.icon;
-                    return <div key={group.key} className="rounded-2xl bg-[#f7faf8] p-4"><h3 className="mb-3 flex items-center gap-2 text-sm font-extrabold text-[#34463b]"><Icon className="h-4 w-4 text-primary-500" />{group.title}</h3>{renderOptions(group)}</div>;
-                  })}
-                </div>
-              )}
-            </section>
-
             {activeFilterCount > 0 && (
               <div className="mb-5 flex flex-wrap items-center gap-2">
                 <span className="mr-1 text-xs font-extrabold uppercase tracking-[0.1em] text-[#849087]">Đã áp dụng</span>

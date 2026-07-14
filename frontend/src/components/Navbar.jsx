@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { LogIn, LogOut, Menu, Search, Settings, UserRound, X } from 'lucide-react';
+import { LogIn, LogOut, Menu, Settings, UserRound, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { ROLES } from '../utils/constants';
 import BrandLogo from './BrandLogo';
@@ -16,21 +16,10 @@ const Navbar = () => {
   const { isAuthenticated, user, logout } = useAuth();
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [search, setSearch] = useState('');
 
   const handleLogout = async () => {
     await logout();
     navigate('/login');
-  };
-
-  const handleSearch = (event) => {
-    event.preventDefault();
-    if (!isAuthenticated) {
-      navigate('/login');
-      return;
-    }
-    const query = search.trim();
-    navigate(query ? `/laptops?search=${encodeURIComponent(query)}` : '/laptops');
   };
 
   const visibleNavItems = NAV_ITEMS.filter(item => !item.protected || isAuthenticated);
@@ -63,11 +52,6 @@ const Navbar = () => {
         </nav>
 
         <div className="ml-auto hidden items-center gap-3 md:flex">
-          <form onSubmit={handleSearch} className="relative hidden xl:block">
-            <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#98a49c]" />
-            <input value={search} onChange={event => setSearch(event.target.value)} placeholder="Tìm kiếm laptop..." aria-label="Tìm kiếm laptop" className="h-10 w-64 rounded-xl border border-[#e2e9e5] bg-[#f6f8f7] pl-10 pr-4 text-sm text-[#26372d] outline-none transition focus:border-primary-300 focus:bg-white" />
-          </form>
-
           {isAuthenticated ? (
             <>
               {user?.role === ROLES.ADMIN && (
@@ -91,10 +75,6 @@ const Navbar = () => {
 
       {isMobileMenuOpen && (
         <div className="border-t border-[#e7ece9] bg-white px-5 py-5 shadow-xl md:hidden">
-          <form onSubmit={handleSearch} className="relative mb-4">
-            <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#98a49c]" />
-            <input value={search} onChange={event => setSearch(event.target.value)} placeholder="Tìm kiếm laptop..." className="h-11 w-full rounded-xl border border-[#e2e9e5] bg-[#f6f8f7] pl-10 pr-4 text-sm outline-none" />
-          </form>
           <nav className="grid gap-1">
             {visibleNavItems.map(item => <NavLink key={item.to} to={item.to} end={item.end} onClick={() => setIsMobileMenuOpen(false)} className={({ isActive }) => `rounded-xl px-4 py-3 text-sm font-bold ${isActive ? 'bg-primary-50 text-primary-700' : 'text-[#536159]'}`}>{item.label}</NavLink>)}
             {isAuthenticated ? (

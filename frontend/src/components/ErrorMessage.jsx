@@ -1,13 +1,14 @@
-import React from 'react';
 import { AlertCircle } from 'lucide-react';
 
 const ErrorMessage = ({ message }) => {
   if (!message) return null;
   
   return (
-    <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-md flex items-start">
-      <AlertCircle className="h-5 w-5 text-red-500 mr-3 mt-0.5 flex-shrink-0" />
-      <div className="text-red-700 text-sm whitespace-pre-line">{message}</div>
+    <div role="alert" className="flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50/80 px-4 py-3.5 shadow-[0_8px_22px_rgba(185,28,28,0.05)]">
+      <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-red-500 shadow-sm">
+        <AlertCircle className="h-4 w-4" />
+      </span>
+      <div className="pt-1 text-sm font-medium leading-6 text-red-700 whitespace-pre-line">{message}</div>
     </div>
   );
 };

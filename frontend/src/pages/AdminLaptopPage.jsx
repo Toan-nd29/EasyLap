@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import laptopApi from '../api/laptopApi';
 import Loading from '../components/Loading';
 import ErrorMessage from '../components/ErrorMessage';
@@ -23,18 +23,21 @@ const AdminLaptopPage = () => {
   const [editId, setEditId] = useState(null);
   const [form, setForm] = useState(EMPTY_FORM);
 
-  useEffect(() => { fetchLaptops(); }, []);
-
-  const fetchLaptops = async () => {
+  async function fetchLaptops() {
     try {
       const res = await laptopApi.getAll();
       if (res.success) setLaptops(res.data || []);
-    } catch (err) {
+    } catch {
       setError('Không thể tải danh sách laptop');
     } finally {
       setLoading(false);
     }
-  };
+  }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchLaptops();
+  }, []);
 
   const handleEdit = (laptop) => {
     setEditId(laptop.id);
@@ -106,15 +109,16 @@ const AdminLaptopPage = () => {
   if (loading) return <Loading fullScreen />;
 
   return (
-    <div className="bg-gray-50 min-h-[calc(100vh-64px)] py-10">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center mb-8">
-          <div className="flex items-center gap-3">
-            <Laptop className="w-8 h-8 text-primary-600" />
-            <h1 className="text-3xl font-bold text-gray-900">Quản lý Laptop</h1>
+    <div className="min-h-[calc(100vh-72px)] bg-[#f5f8f6] py-10 sm:py-14">
+      <div className="mx-auto max-w-7xl px-5 sm:px-8">
+        <div className="mb-8 flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
+          <div>
+            <span className="eyebrow inline-flex items-center gap-2"><Laptop className="h-4 w-4" /> Kho dữ liệu</span>
+            <h1 className="mt-2 text-3xl font-black tracking-[-0.04em] text-[#172019] sm:text-4xl">Quản lý Laptop</h1>
+            <p className="mt-2 text-sm text-[#66736b]">Cập nhật sản phẩm, cấu hình và thông tin hiển thị trên EasyLap.</p>
           </div>
-          <Button onClick={() => { setShowForm(true); setEditId(null); setForm(EMPTY_FORM); }} className="flex items-center gap-2">
-            <Plus className="w-5 h-5" /> Thêm laptop
+          <Button onClick={() => { setShowForm(true); setEditId(null); setForm(EMPTY_FORM); }} className="self-start px-6 sm:self-auto">
+            <Plus className="h-4 w-4" /> Thêm laptop
           </Button>
         </div>
 
@@ -122,10 +126,13 @@ const AdminLaptopPage = () => {
 
         {/* Form */}
         {showForm && (
-          <div className="card mb-8">
-            <h2 className="text-xl font-bold mb-6">{editId ? 'Sửa laptop' : 'Thêm laptop mới'}</h2>
+          <div className="mb-8 rounded-[24px] border border-[#dfe7e2] bg-white p-6 shadow-[0_14px_40px_rgba(32,55,43,0.06)] sm:p-8">
+            <div className="mb-6 border-b border-[#e8eeea] pb-5">
+              <p className="eyebrow">Thông tin sản phẩm</p>
+              <h2 className="mt-1 text-2xl font-black tracking-[-0.03em] text-[#213128]">{editId ? 'Sửa laptop' : 'Thêm laptop mới'}</h2>
+            </div>
             <ErrorMessage message={formError} />
-            <form onSubmit={handleSubmit} className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <form onSubmit={handleSubmit} className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {[
                 { label: 'Tên máy *', key: 'name', placeholder: 'MacBook Air M2' },
                 { label: 'Hãng *', key: 'brand', placeholder: 'Apple' },
@@ -144,30 +151,30 @@ const AdminLaptopPage = () => {
                 { label: 'Link mua hàng', key: 'shop_url', placeholder: 'https://...' },
               ].map(({ label, key, ...rest }) => (
                 <div key={key}>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+                  <label className="mb-2 block text-sm font-bold text-[#405047]">{label}</label>
                   <input
                     value={form[key]}
                     onChange={e => setForm({ ...form, [key]: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-primary-500 focus:border-primary-500"
+                    className="input-clean h-11 px-3 text-sm"
                     {...rest}
                   />
                 </div>
               ))}
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">GPU Type</label>
+                <label className="mb-2 block text-sm font-bold text-[#405047]">GPU Type</label>
                 <select value={form.gpuType} onChange={e => setForm({ ...form, gpuType: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                  className="input-clean h-11 px-3 text-sm">
                   <option value="integrated">Integrated</option>
                   <option value="dedicated">Dedicated</option>
                 </select>
               </div>
 
-              <div className="flex items-center gap-2 pt-6">
+              <div className="flex items-center gap-3 rounded-2xl border border-[#e4ebe6] bg-[#f8faf9] px-4 pt-6 sm:py-3 sm:mt-7">
                 <input type="checkbox" id="upgradeable" checked={form.upgradeable}
                   onChange={e => setForm({ ...form, upgradeable: e.target.checked })}
-                  className="w-4 h-4 text-primary-600" />
-                <label htmlFor="upgradeable" className="text-sm font-medium text-gray-700">Có thể nâng cấp</label>
+                  className="h-4 w-4 accent-primary-500" />
+                <label htmlFor="upgradeable" className="text-sm font-bold text-[#405047]">Có thể nâng cấp</label>
               </div>
 
               {[
@@ -177,17 +184,17 @@ const AdminLaptopPage = () => {
                 { label: 'Nhược điểm (cách nhau bằng dấu phẩy)', key: 'cons' },
               ].map(({ label, key }) => (
                 <div key={key} className="col-span-full">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+                  <label className="mb-2 block text-sm font-bold text-[#405047]">{label}</label>
                   <input
                     value={form[key]}
                     onChange={e => setForm({ ...form, [key]: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                    className="input-clean h-11 px-3 text-sm"
                     placeholder="item1, item2, item3"
                   />
                 </div>
               ))}
 
-              <div className="col-span-full flex justify-end gap-3 mt-2">
+              <div className="col-span-full mt-2 flex justify-end gap-3 border-t border-[#e8eeea] pt-5">
                 <button type="button" onClick={() => { setShowForm(false); setEditId(null); }} className="btn btn-outline">Hủy</button>
                 <Button type="submit" isLoading={isSubmitting}>{editId ? 'Lưu thay đổi' : 'Thêm mới'}</Button>
               </div>
@@ -196,31 +203,31 @@ const AdminLaptopPage = () => {
         )}
 
         {/* Table */}
-        <div className="card overflow-hidden p-0">
+        <div className="overflow-hidden rounded-[24px] border border-[#dfe7e2] bg-white shadow-[0_14px_40px_rgba(32,55,43,0.06)]">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="bg-gray-50 border-b border-gray-200">
+              <thead className="border-b border-[#dfe7e2] bg-[#eef2ef]">
                 <tr>
                   {['Tên', 'Hãng', 'Giá', 'CPU', 'RAM/SSD', 'Thao tác'].map(h => (
-                    <th key={h} className="py-3 px-4 text-left font-semibold text-gray-700">{h}</th>
+                    <th key={h} className="px-5 py-4 text-left text-xs font-extrabold uppercase tracking-[0.08em] text-[#536159]">{h}</th>
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-[#edf1ef]">
                 {laptops.map(laptop => (
-                  <tr key={laptop.id} className="hover:bg-gray-50">
-                    <td className="py-3 px-4 font-medium text-gray-900">{laptop.name}</td>
-                    <td className="py-3 px-4 text-gray-600">{laptop.brand}</td>
-                    <td className="py-3 px-4 text-gray-600 whitespace-nowrap">{formatCurrency(laptop.price)}</td>
-                    <td className="py-3 px-4 text-gray-600 max-w-[150px] truncate">{laptop.cpu}</td>
-                    <td className="py-3 px-4 text-gray-600 whitespace-nowrap">{laptop.ram}GB / {laptop.ssd}GB</td>
-                    <td className="py-3 px-4">
+                  <tr key={laptop.id} className="transition hover:bg-primary-50/40">
+                    <td className="px-5 py-4 font-bold text-[#26372d]">{laptop.name}</td>
+                    <td className="px-5 py-4 text-[#66736b]">{laptop.brand}</td>
+                    <td className="whitespace-nowrap px-5 py-4 font-semibold text-[#26372d]">{formatCurrency(laptop.price)}</td>
+                    <td className="max-w-[180px] truncate px-5 py-4 text-[#66736b]">{laptop.cpu}</td>
+                    <td className="whitespace-nowrap px-5 py-4 text-[#66736b]">{laptop.ram}GB / {laptop.ssd}GB</td>
+                    <td className="px-5 py-4">
                       <div className="flex gap-2">
-                        <button onClick={() => handleEdit(laptop)} className="btn btn-secondary text-xs py-1.5 px-3 flex items-center gap-1">
-                          <Pencil className="w-3 h-3" /> Sửa
+                        <button onClick={() => handleEdit(laptop)} className="inline-flex h-9 items-center gap-1.5 rounded-full border border-[#dfe7e2] bg-[#f5f8f6] px-3 text-xs font-bold text-[#405047] hover:border-primary-300 hover:text-primary-700">
+                          <Pencil className="h-3.5 w-3.5" /> Sửa
                         </button>
-                        <button onClick={() => handleDelete(laptop.id)} className="btn text-xs py-1.5 px-3 bg-red-50 text-red-600 hover:bg-red-100 border border-red-200 flex items-center gap-1">
-                          <Trash2 className="w-3 h-3" /> Xóa
+                        <button onClick={() => handleDelete(laptop.id)} className="inline-flex h-9 items-center gap-1.5 rounded-full border border-red-200 bg-red-50 px-3 text-xs font-bold text-red-600 hover:bg-red-100">
+                          <Trash2 className="h-3.5 w-3.5" /> Xóa
                         </button>
                       </div>
                     </td>
@@ -229,7 +236,7 @@ const AdminLaptopPage = () => {
               </tbody>
             </table>
             {laptops.length === 0 && (
-              <div className="text-center py-12 text-gray-500">Chưa có laptop nào. Bấm "Thêm laptop" để bắt đầu.</div>
+              <div className="px-5 py-14 text-center text-sm text-[#7a8780]">Chưa có laptop nào. Bấm “Thêm laptop” để bắt đầu.</div>
             )}
           </div>
         </div>

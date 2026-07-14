@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
+import { createContext, useState, useEffect, useContext } from 'react';
 import authApi from '../api/authApi';
 import { getToken, setToken as setStorageToken, clearAuthStorage } from '../utils/authStorage';
 
@@ -35,6 +35,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchCurrentUser();
   }, []);
 
@@ -76,4 +77,5 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => useContext(AuthContext);

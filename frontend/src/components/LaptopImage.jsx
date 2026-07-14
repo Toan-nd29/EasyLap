@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { ImageOff } from 'lucide-react';
 
 const BLOCKED_IMAGE_HOSTS = ['microless.com'];
@@ -34,11 +34,8 @@ const LaptopImage = ({
 }) => {
   const imageUrl = src || laptop?.image_url || '';
   const safeImageUrl = useMemo(() => getSafeImageUrl(imageUrl), [imageUrl]);
-  const [hasError, setHasError] = useState(false);
-
-  useEffect(() => {
-    setHasError(false);
-  }, [safeImageUrl]);
+  const [failedUrl, setFailedUrl] = useState('');
+  const hasError = Boolean(safeImageUrl && failedUrl === safeImageUrl);
 
   if (!safeImageUrl || hasError) {
     return (
@@ -56,7 +53,7 @@ const LaptopImage = ({
       className={className}
       loading="lazy"
       referrerPolicy="no-referrer"
-      onError={() => setHasError(true)}
+      onError={() => setFailedUrl(safeImageUrl)}
     />
   );
 };

@@ -1,5 +1,5 @@
-import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { ArrowLeft, FileQuestion } from 'lucide-react';
 import { AuthProvider } from './context/AuthContext';
 
 import MainLayout from './layouts/MainLayout';
@@ -54,10 +54,14 @@ const App = () => {
 
             {/* 404 */}
             <Route path="*" element={
-              <div className="min-h-[calc(100vh-130px)] flex flex-col items-center justify-center">
-                <h1 className="text-6xl font-bold text-gray-300 mb-4">404</h1>
-                <p className="text-gray-600 text-xl mb-8">Trang này không tồn tại.</p>
-                <a href="/" className="btn btn-primary">Về trang chủ</a>
+              <div className="flex min-h-[calc(100vh-180px)] items-center justify-center bg-[#f5f8f6] px-5 py-16">
+                <div className="surface-panel w-full max-w-lg px-8 py-12 text-center sm:px-12">
+                  <span className="mx-auto inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-primary-50 text-primary-600"><FileQuestion className="h-8 w-8" /></span>
+                  <p className="eyebrow mt-6">Lỗi 404</p>
+                  <h1 className="mt-2 text-3xl font-black tracking-[-0.035em] text-[#172019]">Không tìm thấy trang</h1>
+                  <p className="mx-auto mt-3 max-w-sm text-sm leading-6 text-[#66736b]">Đường dẫn này không tồn tại hoặc đã được thay đổi. Hãy quay lại trang chủ để tiếp tục.</p>
+                  <a href="/" className="btn btn-primary mt-7"><ArrowLeft className="h-4 w-4" /> Về trang chủ</a>
+                </div>
               </div>
             } />
           </Route>

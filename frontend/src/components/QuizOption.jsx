@@ -1,30 +1,32 @@
-import React from 'react';
+import { Check } from 'lucide-react';
 
 const QuizOption = ({ label, selected, onClick, isMultiple }) => {
   return (
-    <div 
+    <button
+      type="button"
       onClick={onClick}
+      aria-pressed={selected}
       className={`
-        p-4 border-2 rounded-xl cursor-pointer transition-all duration-200 flex items-center
-        ${selected 
-          ? 'border-primary-500 bg-primary-50' 
-          : 'border-gray-200 hover:border-primary-200 hover:bg-gray-50'
+        group flex w-full items-center gap-4 rounded-[18px] border px-4 py-4 text-left
+        shadow-[0_5px_18px_rgba(32,55,43,0.035)] transition-all duration-200 sm:px-5
+        ${selected
+          ? 'border-primary-400 bg-primary-50 text-[#123d29] shadow-[0_10px_24px_rgba(37,200,117,0.10)] ring-1 ring-primary-200'
+          : 'border-[#e1e8e4] bg-white text-[#26342c] hover:-translate-y-0.5 hover:border-primary-300 hover:bg-[#fbfefc] hover:shadow-[0_10px_24px_rgba(32,55,43,0.07)]'
         }
       `}
     >
       <div className={`
-        flex-shrink-0 flex items-center justify-center mr-4 transition-colors duration-200
-        ${isMultiple ? 'w-6 h-6 rounded' : 'w-6 h-6 rounded-full'}
-        ${selected ? 'bg-primary-500 border-primary-500' : 'bg-white border-2 border-gray-300'}
+        flex h-6 w-6 shrink-0 items-center justify-center border transition-all duration-200
+        ${isMultiple ? 'rounded-[7px]' : 'rounded-full'}
+        ${selected
+          ? 'border-primary-500 bg-primary-500 text-white shadow-[0_4px_12px_rgba(37,200,117,0.24)]'
+          : 'border-[#bdc9c1] bg-white text-transparent group-hover:border-primary-400'
+        }
       `}>
-        {selected && (
-          <svg className="w-4 h-4 text-white fill-current" viewBox="0 0 20 20">
-            <path d="M0 11l2-2 5 5L18 3l2 2L7 18z"/>
-          </svg>
-        )}
+        <Check className="h-4 w-4" strokeWidth={2.2} aria-hidden="true" />
       </div>
-      <div className="text-gray-800 font-medium">{label}</div>
-    </div>
+      <span className="font-semibold leading-6">{label}</span>
+    </button>
   );
 };
 

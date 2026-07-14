@@ -337,7 +337,7 @@ const LaptopListPage = () => {
   );
 
   const renderFilterNavigation = (mobile = false) => (
-    <div className={mobile ? '' : 'sticky top-24 z-[60]'}>
+    <div>
       <div className={mobile ? '' : 'rounded-[24px] border border-[#e2e8e4] bg-white p-6 shadow-[0_14px_40px_rgba(32,55,43,0.07)]'}>
         {!mobile && (
           <div className="mb-6">
@@ -419,10 +419,14 @@ const LaptopListPage = () => {
       <div className="mx-auto max-w-[1440px] px-5 py-8 sm:px-8 xl:px-12">
         {error && <div className="mb-6"><ErrorMessage message={error} /></div>}
 
-        <button type="button" onClick={() => setIsMobileFiltersOpen(true)} className="btn btn-outline mb-5 w-full justify-center lg:hidden"><SlidersHorizontal className="mr-2 h-4 w-4" /> Bộ lọc {activeFilterCount > 0 ? `(${activeFilterCount})` : ''}</button>
+        <div className="mb-5 flex justify-end lg:hidden">
+          <button type="button" onClick={() => setIsMobileFiltersOpen(true)} className="inline-flex h-11 items-center gap-2 rounded-full border border-[#dfe7e2] bg-white px-5 text-sm font-bold text-[#405047] shadow-[0_8px_24px_rgba(32,55,43,0.06)] transition hover:border-primary-300 hover:bg-primary-50 hover:text-primary-700">
+            <SlidersHorizontal className="h-4 w-4" /> Bộ lọc {activeFilterCount > 0 ? `(${activeFilterCount})` : ''}
+          </button>
+        </div>
 
         <div className="grid items-start gap-7 lg:grid-cols-[290px_minmax(0,1fr)]">
-          <aside className="hidden lg:block">{renderFilterNavigation()}</aside>
+          <aside className="hidden self-start lg:sticky lg:top-[88px] lg:z-40 lg:block">{renderFilterNavigation()}</aside>
 
           <main className="min-w-0">
             {activeFilterCount > 0 && (

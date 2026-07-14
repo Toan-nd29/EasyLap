@@ -1,106 +1,217 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import {
+  ArrowRight,
+  Cpu,
+  HardDrive,
+  Heart,
+  MemoryStick,
+  Trash2,
+} from 'lucide-react';
 import userApi from '../api/userApi';
-import laptopApi from '../api/laptopApi';
-import Loading from '../components/Loading';
 import ErrorMessage from '../components/ErrorMessage';
 import LaptopImage from '../components/LaptopImage';
 import { formatCurrency } from '../utils/formatCurrency';
-import { Heart, Trash2 } from 'lucide-react';
+
+const FavoritesSkeleton = () => (
+  <div className="space-y-4" aria-label="Đang tải danh sách laptop yêu thích">
+    {[0, 1, 2].map((item) => (
+      <div
+        key={item}
+        className="animate-pulse rounded-3xl border border-slate-200/80 bg-white p-4 shadow-[0_12px_36px_rgba(30,55,43,0.06)]"
+      >
+        <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
+          <div className="h-44 w-full rounded-2xl bg-slate-100 sm:h-32 sm:w-40" />
+          <div className="flex-1 space-y-3">
+            <div className="h-3 w-20 rounded-full bg-slate-100" />
+            <div className="h-5 w-2/3 rounded-full bg-slate-200" />
+            <div className="h-4 w-28 rounded-full bg-slate-100" />
+          </div>
+          <div className="h-11 w-full rounded-xl bg-slate-100 sm:w-32" />
+        </div>
+      </div>
+    ))}
+  </div>
+);
 
 const FavoritesPage = () => {
-  const navigate = useNavigate();
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
+    const fetchFavorites = async () => {
+      try {
+        const res = await userApi.getFavorites();
+        if (res.success) {
+          setFavorites(res.favorites || []);
+        } else {
+          setError('Không thể tải danh sách yêu thích.');
+        }
+      } catch (err) {
+        setError(err.message || 'Lỗi kết nối máy chủ');
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchFavorites();
   }, []);
-
-  const fetchFavorites = async () => {
-    try {
-      const res = await userApi.getFavorites();
-      if (res.success) {
-        setFavorites(res.favorites || []);
-      } else {
-        setError('Không thể tải danh sách yêu thích.');
-      }
-    } catch (err) {
-      setError(err.message || 'Lỗi kết nối máy chủ');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleRemove = async (laptopId) => {
     try {
       await userApi.removeFavorite(laptopId);
-      setFavorites(prev => prev.filter(f => f.laptop_id !== laptopId));
+      setFavorites((previous) => previous.filter((favorite) => {
+        const favoriteLaptopId = favorite.laptop_id ?? favorite.laptops?.id ?? favorite.id;
+        return favoriteLaptopId !== laptopId;
+      }));
     } catch (err) {
       console.error('Remove favorite error', err);
     }
   };
 
-  if (loading) return <Loading fullScreen />;
-
   return (
-    <div className="bg-gray-50 min-h-[calc(100vh-64px)] py-10">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center gap-3 mb-8">
-          <Heart className="w-8 h-8 text-red-500 fill-current" />
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Laptop yêu thích</h1>
-            <p className="text-gray-600 mt-1">{favorites.length} laptop đã lưu</p>
+    <main className="min-h-[calc(100vh-64px)] bg-[#f7faf8] pb-16">
+      <section className="border-b border-slate-200/70 bg-white">
+        <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-8 sm:px-6 md:flex-row md:items-end md:justify-between md:py-10 lg:px-8">
+          <div className="flex items-start gap-4">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-primary-100 bg-primary-50 text-primary-700 shadow-sm">
+              <Heart className="h-6 w-6" aria-hidden="true" />
+            </div>
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary-700">
+                Không gian cá nhân
+              </p>
+              <h1 className="mt-1 text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl">
+                Laptop yêu thích
+              </h1>
+              <p className="mt-2 max-w-xl text-sm leading-6 text-slate-500 sm:text-base">
+                Lưu lại những lựa chọn phù hợp để dễ dàng xem lại và cân nhắc.
+              </p>
+            </div>
+          </div>
+
+          <div className="inline-flex w-fit items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+            <span className="flex h-8 min-w-8 items-center justify-center rounded-xl bg-white px-2 font-extrabold text-primary-700 shadow-sm">
+              {loading ? '—' : favorites.length}
+            </span>
+            laptop đã lưu
           </div>
         </div>
+      </section>
 
-        {error && <div className="mb-6"><ErrorMessage message={error} /></div>}
+      <section className="mx-auto max-w-6xl px-4 pt-8 sm:px-6 lg:px-8">
+        {error && (
+          <div className="mb-6">
+            <ErrorMessage message={error} />
+          </div>
+        )}
 
-        {favorites.length === 0 ? (
-          <div className="card text-center py-20">
-            <Heart className="w-16 h-16 text-gray-200 mx-auto mb-6" />
-            <h2 className="text-xl font-bold text-gray-900 mb-3">Chưa có laptop yêu thích</h2>
-            <p className="text-gray-600 mb-8">Bạn chưa lưu laptop yêu thích nào. Hãy duyệt danh sách laptop và bấm yêu thích nhé!</p>
-            <Link to="/laptops" className="btn btn-primary">Khám phá laptop</Link>
+        {loading ? (
+          <FavoritesSkeleton />
+        ) : favorites.length === 0 ? (
+          <div className="overflow-hidden rounded-3xl border border-slate-200/80 bg-white px-6 py-14 text-center shadow-[0_18px_50px_rgba(30,55,43,0.07)] sm:px-12 sm:py-20">
+            <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl border border-primary-100 bg-primary-50 text-primary-600">
+              <Heart className="h-9 w-9" aria-hidden="true" />
+            </div>
+            <h2 className="mt-6 text-2xl font-extrabold tracking-tight text-slate-950">
+              Chưa có laptop yêu thích
+            </h2>
+            <p className="mx-auto mt-3 max-w-lg text-sm leading-6 text-slate-500 sm:text-base">
+              Khám phá kho laptop và nhấn biểu tượng trái tim để lưu lại những mẫu bạn quan tâm.
+            </p>
+            <Link
+              to="/laptops"
+              className="mt-8 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary-600 px-5 py-3 text-sm font-bold text-white shadow-[0_10px_24px_rgba(22,184,101,0.22)] transition hover:-translate-y-0.5 hover:bg-primary-700 hover:shadow-[0_14px_28px_rgba(22,184,101,0.28)]"
+            >
+              Khám phá laptop
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </Link>
           </div>
         ) : (
           <div className="space-y-4">
-            {favorites.map((fav) => {
-              const laptop = fav.laptops || fav;
+            {favorites.map((favorite) => {
+              const laptop = favorite.laptops || favorite;
+              const laptopId = favorite.laptop_id ?? laptop.id;
+
               return (
-                <div key={fav.laptop_id || fav.id} className="card flex flex-col sm:flex-row items-start sm:items-center gap-4 hover:shadow-md transition-shadow">
-                  <div className="w-20 h-20 bg-gray-100 rounded-lg flex-shrink-0 flex items-center justify-center overflow-hidden">
-                    <LaptopImage laptop={laptop} fallbackClassName="w-full h-full" iconClassName="w-5 h-5" />
-                  </div>
+                <article
+                  key={laptopId}
+                  className="group rounded-3xl border border-slate-200/80 bg-white p-4 shadow-[0_12px_36px_rgba(30,55,43,0.06)] transition duration-300 hover:-translate-y-0.5 hover:border-primary-200 hover:shadow-[0_18px_42px_rgba(30,55,43,0.1)] sm:p-5"
+                >
+                  <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
+                    <div className="flex h-44 w-full shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-slate-100 bg-gradient-to-br from-slate-50 to-[#edf5f0] p-4 sm:h-32 sm:w-40">
+                      <LaptopImage
+                        laptop={laptop}
+                        fallbackClassName="h-full w-full"
+                        iconClassName="h-6 w-6"
+                      />
+                    </div>
 
-                  <div className="flex-grow">
-                    <div className="text-xs font-semibold text-primary-600 uppercase tracking-wider mb-0.5">{laptop.brand}</div>
-                    <Link to={`/laptops/${fav.laptop_id}`} className="text-lg font-bold text-gray-900 hover:text-primary-600">
-                      {laptop.name}
-                    </Link>
-                    <div className="text-gray-700 font-semibold mt-1">{formatCurrency(laptop.price)}</div>
-                    {laptop.cpu && <div className="text-sm text-gray-500 mt-1">{laptop.cpu} • {laptop.ram}GB RAM • {laptop.ssd}GB SSD</div>}
-                  </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-primary-700">
+                        {laptop.brand || 'Laptop'}
+                      </p>
+                      <Link
+                        to={`/laptops/${laptopId}`}
+                        className="mt-1 block text-lg font-extrabold leading-snug text-slate-950 transition-colors hover:text-primary-700 sm:text-xl"
+                      >
+                        {laptop.name}
+                      </Link>
+                      <p className="mt-2 text-lg font-extrabold text-slate-900">
+                        {laptop.price === null || laptop.price === undefined
+                          ? 'Chưa cập nhật giá'
+                          : formatCurrency(laptop.price)}
+                      </p>
 
-                  <div className="flex gap-3 flex-shrink-0">
-                    <Link to={`/laptops/${fav.laptop_id}`} className="btn btn-outline text-sm px-4 py-2">
-                      Chi tiết
-                    </Link>
-                    <button
-                      onClick={() => handleRemove(fav.laptop_id)}
-                      className="btn text-sm px-3 py-2 text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 flex items-center gap-1"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                      <div className="mt-3 flex flex-wrap gap-2 text-xs font-medium text-slate-600">
+                        {laptop.cpu && (
+                          <span className="inline-flex items-center gap-1.5 rounded-lg bg-slate-100 px-2.5 py-1.5">
+                            <Cpu className="h-3.5 w-3.5 text-primary-600" aria-hidden="true" />
+                            {laptop.cpu}
+                          </span>
+                        )}
+                        {laptop.ram && (
+                          <span className="inline-flex items-center gap-1.5 rounded-lg bg-slate-100 px-2.5 py-1.5">
+                            <MemoryStick className="h-3.5 w-3.5 text-primary-600" aria-hidden="true" />
+                            {laptop.ram}GB RAM
+                          </span>
+                        )}
+                        {laptop.ssd && (
+                          <span className="inline-flex items-center gap-1.5 rounded-lg bg-slate-100 px-2.5 py-1.5">
+                            <HardDrive className="h-3.5 w-3.5 text-primary-600" aria-hidden="true" />
+                            {laptop.ssd}GB SSD
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="flex w-full shrink-0 gap-2 sm:w-auto sm:flex-col">
+                      <Link
+                        to={`/laptops/${laptopId}`}
+                        className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 transition hover:border-primary-200 hover:bg-primary-50 hover:text-primary-700 sm:flex-none"
+                      >
+                        Chi tiết
+                        <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                      </Link>
+                      <button
+                        type="button"
+                        onClick={() => handleRemove(laptopId)}
+                        className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm font-bold text-slate-600 transition hover:border-red-200 hover:bg-red-50 hover:text-red-600 sm:flex-none"
+                        aria-label={`Bỏ lưu ${laptop.name}`}
+                      >
+                        <Trash2 className="h-4 w-4" aria-hidden="true" />
+                        Bỏ lưu
+                      </button>
+                    </div>
                   </div>
-                </div>
+                </article>
               );
             })}
           </div>
         )}
-      </div>
-    </div>
+      </section>
+    </main>
   );
 };
 
